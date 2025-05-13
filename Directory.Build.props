@@ -2,8 +2,8 @@
   <PropertyGroup>
     <!-- Meta Options -->
     <Authors>Nogic</Authors>
-    <Copyright>©2019-2024 Nogic</Copyright>
-    <PackageProjectUrl>https://github.com/nogic1008/dotnet-ci-example</PackageProjectUrl>
+    <Copyright>©2025 Nogic</Copyright>
+    <PackageProjectUrl>https://github.com/nogic1008/ThrowHelperExtensions</PackageProjectUrl>
     <RepositoryUrl>$(PackageProjectUrl)</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
