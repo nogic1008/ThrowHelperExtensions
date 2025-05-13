@@ -1,0 +1,21 @@
+<Project Sdk="MSTest.Sdk/3.3.1">
+
+  <PropertyGroup>
+    <TargetFrameworks>net9.0;net8.0;net48</TargetFrameworks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Shouldly" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="Microsoft.VisualStudio.TestTools.UnitTesting.ParallelizeAttribute" />
+    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+    <Using Include="Shouldly" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/Sample.Core/Sample.Core.csproj" />
+  </ItemGroup>
+
+</Project>
