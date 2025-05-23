@@ -18,13 +18,7 @@ public sealed class ThrowHelperExtensionsTest
             string? argument = null;
 
             // Act
-#if NET7_0_OR_GREATER
-#pragma warning disable CS0618
-#endif
             var action = () => ThrowHelperExtensions.ThrowIfNullOrEmpty(argument!);
-#if NET7_0_OR_GREATER
-#pragma warning restore CS0618
-#endif
 
             // Assert
             action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe(nameof(argument));
@@ -37,13 +31,7 @@ public sealed class ThrowHelperExtensionsTest
             string? argument = "";
 
             // Act
-#if NET7_0_OR_GREATER
-#pragma warning disable CS0618
-#endif
             var action = () => ThrowHelperExtensions.ThrowIfNullOrEmpty(argument);
-#if NET7_0_OR_GREATER
-#pragma warning restore CS0618
-#endif
 
             // Assert
             action.ShouldThrow<ArgumentException>().ParamName.ShouldBe(nameof(argument));
@@ -56,13 +44,7 @@ public sealed class ThrowHelperExtensionsTest
             string? argument = "foo";
 
             // Act
-#if NET7_0_OR_GREATER
-#pragma warning disable CS0618
-#endif
             var action = () => ThrowHelperExtensions.ThrowIfNullOrEmpty(argument);
-#if NET7_0_OR_GREATER
-#pragma warning restore CS0618
-#endif
 
             // Assert
             action.ShouldNotThrow();
@@ -75,13 +57,7 @@ public sealed class ThrowHelperExtensionsTest
             string? argument = null;
 
             // Act
-#if NET8_0_OR_GREATER
-#pragma warning disable CS0618
-#endif
             var action = () => ThrowHelperExtensions.ThrowIfNullOrWhiteSpace(argument!);
-#if NET8_0_OR_GREATER
-#pragma warning restore CS0618
-#endif
 
             // Assert
             action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe(nameof(argument));
@@ -94,13 +70,7 @@ public sealed class ThrowHelperExtensionsTest
         public void When_Argument_Is_WhiteSpace_ThrowIfNullOrWhiteSpace_Throws_ArgumentException(string argument)
         {
             // Arrange - Act
-#if NET8_0_OR_GREATER
-#pragma warning disable CS0618
-#endif
             var action = () => ThrowHelperExtensions.ThrowIfNullOrWhiteSpace(argument);
-#if NET8_0_OR_GREATER
-#pragma warning restore CS0618
-#endif
 
             // Assert
             action.ShouldThrow<ArgumentException>().ParamName.ShouldBe(nameof(argument));
@@ -113,13 +83,7 @@ public sealed class ThrowHelperExtensionsTest
             string? argument = "foo";
 
             // Act
-#if NET8_0_OR_GREATER
-#pragma warning disable CS0618
-#endif
             var action = () => ThrowHelperExtensions.ThrowIfNullOrWhiteSpace(argument);
-#if NET8_0_OR_GREATER
-#pragma warning restore CS0618
-#endif
 
             // Assert
             action.ShouldNotThrow();
@@ -139,32 +103,20 @@ public sealed class ThrowHelperExtensionsTest
             object? argument = null;
 
             // Act
-#if NET6_0_OR_GREATER
-#pragma warning disable CS0618
-#endif
             var action = () => ThrowHelperExtensions.ThrowIfNull(argument!);
-#if NET6_0_OR_GREATER
-#pragma warning restore CS0618
-#endif
 
             // Assert
             action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe(nameof(argument));
         }
 
         [TestMethod($"{nameof(ArgumentNullException)}.{nameof(ThrowHelperExtensions.ThrowIfNull)}(<not null>) does not throws any {nameof(Exception)}")]
-        public void When_Argument_Is_Not_Null_ThrowIfNull_Does_Not_Throws_Exception()
+        public void When_Argument_Is_Not_Null_ThrowIfNull_Does_Not_Throw_Exception()
         {
             // Arrange
             object? argument = new();
 
             // Act
-#if NET6_0_OR_GREATER
-#pragma warning disable CS0618
-#endif
             var action = () => ThrowHelperExtensions.ThrowIfNull(argument);
-#if NET6_0_OR_GREATER
-#pragma warning restore CS0618
-#endif
 
             // Assert
             action.ShouldNotThrow();
@@ -177,13 +129,7 @@ public sealed class ThrowHelperExtensionsTest
             void* argument = null;
 
             // Act
-#if NET7_0_OR_GREATER
-#pragma warning disable CS0618
-#endif
             var action = () => ThrowHelperExtensions.ThrowIfNull(argument);
-#if NET7_0_OR_GREATER
-#pragma warning restore CS0618
-#endif
 
             // Assert
             action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe(nameof(argument));
@@ -196,13 +142,7 @@ public sealed class ThrowHelperExtensionsTest
             int* argument = stackalloc int[1];
 
             // Act
-#if NET7_0_OR_GREATER
-#pragma warning disable CS0618
-#endif
             var action = () => ThrowHelperExtensions.ThrowIfNull(argument);
-#if NET7_0_OR_GREATER
-#pragma warning restore CS0618
-#endif
 
             // Assert
             action.ShouldNotThrow();
@@ -220,15 +160,11 @@ public sealed class ThrowHelperExtensionsTest
         {
             // Arrange
             object? argument = new();
+
             // Act
-#if NET7_0_OR_GREATER
-#pragma warning disable CS0618
-#endif
             var throwIfObject = () => ThrowHelperExtensions.ThrowIf(true, argument);
             var throwIfType = () => ThrowHelperExtensions.ThrowIf(true, typeof(object));
-#if NET7_0_OR_GREATER
-#pragma warning restore CS0618
-#endif
+
             // Assert
             throwIfObject.ShouldThrow<ObjectDisposedException>();
             throwIfType.ShouldThrow<ObjectDisposedException>();
@@ -239,15 +175,11 @@ public sealed class ThrowHelperExtensionsTest
         {
             // Arrange
             object? argument = new();
+
             // Act
-#if NET7_0_OR_GREATER
-#pragma warning disable CS0618
-#endif
             var throwIfObject = () => ThrowHelperExtensions.ThrowIf(false, argument);
             var throwIfType = () => ThrowHelperExtensions.ThrowIf(false, typeof(object));
-#if NET7_0_OR_GREATER
-#pragma warning restore CS0618
-#endif
+
             // Assert
             throwIfObject.ShouldNotThrow();
             throwIfType.ShouldNotThrow();
