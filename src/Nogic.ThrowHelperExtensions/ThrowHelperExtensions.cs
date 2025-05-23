@@ -39,6 +39,33 @@ public static class ThrowHelperExtensions
 #if NETSTANDARD2_0
 #pragma warning restore CS8777
 #endif
+
+        /// <summary>Throws an exception if <paramref name="argument"/> is null, empty, or consists only of white-space characters.</summary>
+        /// <param name="argument">The string argument to validate.</param>
+        /// <param name="paramName"><inheritdoc cref="ThrowIfNull(object?, string?)" path="/param[@name='paramName']"/></param>
+        /// <exception cref="ArgumentNullException"><inheritdoc cref="ThrowIfNull(object?, string?)" path="/exception"/></exception>
+        /// <exception cref="ArgumentException"><paramref name="argument"/> is empty or consists only of white-space characters.</exception>
+#if NET8_0_OR_GREATER
+        [Obsolete($"Use {nameof(ArgumentException)}.{nameof(ThrowIfNullOrWhiteSpace)}(string?, string?) directly instead.")]
+#endif
+#if NETSTANDARD2_0
+#pragma warning disable CS8777
+#endif
+        public static void ThrowIfNullOrWhiteSpace([NotNull] string? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        {
+            if (string.IsNullOrWhiteSpace(argument))
+                Throw(argument, paramName);
+
+            [DoesNotReturn]
+            static void Throw(string? argument, string? paramName)
+            {
+                ArgumentNullException.ThrowIfNull(argument, paramName);
+                throw new ArgumentException("The value cannot be an empty string or composed entirely of whitespace.", paramName);
+            }
+        }
+#if NETSTANDARD2_0
+#pragma warning restore CS8777
+#endif
     }
 
     /// <summary>
