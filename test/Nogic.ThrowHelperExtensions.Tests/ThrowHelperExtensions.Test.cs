@@ -340,10 +340,6 @@ public sealed class ThrowHelperExtensionsTest
             ShouldThrow_ArgumentOutOfRangeException_With_ParamName(() => ThrowHelperExtensions.ThrowIfZero(nuintValue), nameof(nuintValue));
             char charValue = (char)0;
             ShouldThrow_ArgumentOutOfRangeException_With_ParamName(() => ThrowHelperExtensions.ThrowIfZero(charValue), nameof(charValue));
-            BigInteger bigIntegerValue = 0;
-            ShouldThrow_ArgumentOutOfRangeException_With_ParamName(() => ThrowHelperExtensions.ThrowIfZero(bigIntegerValue), nameof(bigIntegerValue));
-            Complex complexValue = 0;
-            ShouldThrow_ArgumentOutOfRangeException_With_ParamName(() => ThrowHelperExtensions.ThrowIfZero(complexValue), nameof(complexValue));
 
             static void ShouldThrow_ArgumentOutOfRangeException_With_ParamName(Action action, string paramName) =>
                 action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe(paramName);
@@ -380,10 +376,6 @@ public sealed class ThrowHelperExtensionsTest
             ShouldNotThrow(() => ThrowHelperExtensions.ThrowIfZero(nuintValue));
             char charValue = (char)1;
             ShouldNotThrow(() => ThrowHelperExtensions.ThrowIfZero(charValue));
-            BigInteger bigIntegerValue = 1;
-            ShouldNotThrow(() => ThrowHelperExtensions.ThrowIfZero(bigIntegerValue));
-            Complex complexValue = 1;
-            ShouldNotThrow(() => ThrowHelperExtensions.ThrowIfZero(complexValue));
 
             static void ShouldNotThrow(Action action) => action.ShouldNotThrow();
         }
@@ -407,10 +399,6 @@ public sealed class ThrowHelperExtensionsTest
             ShouldThrow_ArgumentOutOfRangeException_With_ParamName(() => ThrowHelperExtensions.ThrowIfNegative(decimalValue), nameof(decimalValue));
             nint nintValue = -1;
             ShouldThrow_ArgumentOutOfRangeException_With_ParamName(() => ThrowHelperExtensions.ThrowIfNegative(nintValue), nameof(nintValue));
-            BigInteger bigIntegerValue = -1;
-            ShouldThrow_ArgumentOutOfRangeException_With_ParamName(() => ThrowHelperExtensions.ThrowIfNegative(bigIntegerValue), nameof(bigIntegerValue));
-            Complex complexValue = -1;
-            ShouldThrow_ArgumentOutOfRangeException_With_ParamName(() => ThrowHelperExtensions.ThrowIfNegative(complexValue), nameof(complexValue));
 
             static void ShouldThrow_ArgumentOutOfRangeException_With_ParamName(Action action, string paramName) =>
                 action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe(paramName);
@@ -451,14 +439,6 @@ public sealed class ThrowHelperExtensionsTest
             ShouldNotThrow(() => ThrowHelperExtensions.ThrowIfNegative(nintValue0));
             nint nintValue1 = 1;
             ShouldNotThrow(() => ThrowHelperExtensions.ThrowIfNegative(nintValue1));
-            BigInteger bigIntegerValue0 = 0;
-            ShouldNotThrow(() => ThrowHelperExtensions.ThrowIfNegative(bigIntegerValue0));
-            BigInteger bigIntegerValue1 = 1;
-            ShouldNotThrow(() => ThrowHelperExtensions.ThrowIfNegative(bigIntegerValue1));
-            Complex complexValue0 = 0;
-            ShouldNotThrow(() => ThrowHelperExtensions.ThrowIfNegative(complexValue0));
-            Complex complexValue1 = 1;
-            ShouldNotThrow(() => ThrowHelperExtensions.ThrowIfNegative(complexValue1));
 
             static void ShouldNotThrow(Action action) => action.ShouldNotThrow();
         }
@@ -498,14 +478,6 @@ public sealed class ThrowHelperExtensionsTest
             ShouldThrow_ArgumentOutOfRangeException_With_ParamName(() => ThrowHelperExtensions.ThrowIfNegativeOrZero(nintValue0), nameof(nintValue0));
             nint nintValue = -1;
             ShouldThrow_ArgumentOutOfRangeException_With_ParamName(() => ThrowHelperExtensions.ThrowIfNegativeOrZero(nintValue), nameof(nintValue));
-            BigInteger bigIntegerValue0 = 0;
-            ShouldThrow_ArgumentOutOfRangeException_With_ParamName(() => ThrowHelperExtensions.ThrowIfNegativeOrZero(bigIntegerValue0), nameof(bigIntegerValue0));
-            BigInteger bigIntegerValue = -1;
-            ShouldThrow_ArgumentOutOfRangeException_With_ParamName(() => ThrowHelperExtensions.ThrowIfNegativeOrZero(bigIntegerValue), nameof(bigIntegerValue));
-            Complex complexValue0 = 0;
-            ShouldThrow_ArgumentOutOfRangeException_With_ParamName(() => ThrowHelperExtensions.ThrowIfNegativeOrZero(complexValue0), nameof(complexValue0));
-            Complex complexValue = -1;
-            ShouldThrow_ArgumentOutOfRangeException_With_ParamName(() => ThrowHelperExtensions.ThrowIfNegativeOrZero(complexValue), nameof(complexValue));
 
             static void ShouldThrow_ArgumentOutOfRangeException_With_ParamName(Action action, string paramName) =>
                 action.ShouldThrow<ArgumentOutOfRangeException>().ParamName.ShouldBe(paramName);
@@ -530,10 +502,6 @@ public sealed class ThrowHelperExtensionsTest
             ShouldNotThrow(() => ThrowHelperExtensions.ThrowIfNegative(decimalValue1));
             nint nintValue1 = 1;
             ShouldNotThrow(() => ThrowHelperExtensions.ThrowIfNegative(nintValue1));
-            BigInteger bigIntegerValue1 = 1;
-            ShouldNotThrow(() => ThrowHelperExtensions.ThrowIfNegative(bigIntegerValue1));
-            Complex complexValue1 = 1;
-            ShouldNotThrow(() => ThrowHelperExtensions.ThrowIfNegative(complexValue1));
 
             static void ShouldNotThrow(Action action) => action.ShouldNotThrow();
         }

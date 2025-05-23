@@ -451,48 +451,6 @@ public static class ThrowHelperExtensions
             if (value == 0)
                 ThrowZero(value, paramName);
         }
-
-        /// <inheritdoc cref="ThrowIfZero(byte, string?)"/>
-        public static void ThrowIfZero(BigInteger value, [CallerArgumentExpression(nameof(value))] string? paramName = null)
-        {
-            if (value == BigInteger.Zero)
-                ThrowZero(value, paramName);
-        }
-
-        /// <inheritdoc cref="ThrowIfNegative(sbyte, string?)"/>
-        public static void ThrowIfNegative(BigInteger value, [CallerArgumentExpression(nameof(value))] string? paramName = null)
-        {
-            if (value.Sign < 0)
-                ThrowNegative(value, paramName);
-        }
-
-        /// <inheritdoc cref="ThrowIfNegativeOrZero(sbyte, string?)"/>
-        public static void ThrowIfNegativeOrZero(BigInteger value, [CallerArgumentExpression(nameof(value))] string? paramName = null)
-        {
-            if (value.Sign <= 0)
-                ThrowNegativeOrZero(value, paramName);
-        }
-
-        /// <inheritdoc cref="ThrowIfZero(byte, string?)"/>
-        public static void ThrowIfZero(Complex value, [CallerArgumentExpression(nameof(value))] string? paramName = null)
-        {
-            if (value == Complex.Zero)
-                ThrowZero(value, paramName);
-        }
-
-        /// <inheritdoc cref="ThrowIfNegative(sbyte, string?)"/>
-        public static void ThrowIfNegative(Complex value, [CallerArgumentExpression(nameof(value))] string? paramName = null)
-        {
-            if (value.Imaginary == 0.0 && value.Real < 0.0)
-                ThrowNegative(value, paramName);
-        }
-
-        /// <inheritdoc cref="ThrowIfNegativeOrZero(sbyte, string?)"/>
-        public static void ThrowIfNegativeOrZero(Complex value, [CallerArgumentExpression(nameof(value))] string? paramName = null)
-        {
-            if (value.Imaginary == 0.0 && value.Real <= 0.0)
-                ThrowNegativeOrZero(value, paramName);
-        }
 #endif
 
         [DoesNotReturn]
