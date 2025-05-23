@@ -133,7 +133,7 @@ public sealed class ThrowHelperExtensionsTest
         }
 
         [TestMethod($"{nameof(ArgumentNullException)}.{nameof(ThrowHelperExtensions.ThrowIfNull)}(<pointer>) does not throws any {nameof(Exception)}")]
-        public unsafe void When_Argument_Is_Pointer_ThrowIfNull_Does_Not_Throws_Exception()
+        public unsafe void When_Argument_Is_Pointer_ThrowIfNull_Does_Not_Throw_Exception()
         {
             // Arrange
             int* argument = stackalloc int[1];
