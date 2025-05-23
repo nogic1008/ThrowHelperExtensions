@@ -9,7 +9,7 @@ public sealed class ArgumentOutOfRangeExceptionExtensionsTest
     [TestMethod($"{nameof(ArgumentOutOfRangeException)}.{nameof(ArgumentOutOfRangeExceptionExtensions.ThrowIfEqual)}() throws {nameof(ArgumentOutOfRangeException)}")]
     [DataRow(1, 1)]
     [DataRow("foo", "foo")]
-    public void When_Value_Equals_Other_ThrowIfEqual_Throws_ArgumentOutOfRangeException<T>(T value, T other) where T : IEquatable<T>?
+    public void When_Value_Equals_Other_ThrowIfEqual_Throws_ArgumentOutOfRangeException<T>(T value, T other) where T : IEquatable<T>
     {
         // Arrange - Act
         var action = () => ArgumentOutOfRangeExceptionExtensions.ThrowIfEqual(value, other);
@@ -21,7 +21,7 @@ public sealed class ArgumentOutOfRangeExceptionExtensionsTest
     [TestMethod($"{nameof(ArgumentOutOfRangeException)}.{nameof(ArgumentOutOfRangeExceptionExtensions.ThrowIfEqual)}() does not throw any {nameof(Exception)}")]
     [DataRow(1, 0)]
     [DataRow("foo", "bar")]
-    public void When_Value_Not_Equals_Other_ThrowIfEqual_Does_Not_Throw_Exception<T>(T value, T other) where T : IEquatable<T>?
+    public void When_Value_Not_Equals_Other_ThrowIfEqual_Does_Not_Throw_Exception<T>(T value, T other) where T : IEquatable<T>
     {
         // Arrange - Act
         var action = () => ArgumentOutOfRangeExceptionExtensions.ThrowIfEqual(value, other);
@@ -33,7 +33,7 @@ public sealed class ArgumentOutOfRangeExceptionExtensionsTest
     [TestMethod($"{nameof(ArgumentOutOfRangeException)}.{nameof(ArgumentOutOfRangeExceptionExtensions.ThrowIfNotEqual)}() throws {nameof(ArgumentOutOfRangeException)}")]
     [DataRow(1, 0)]
     [DataRow("foo", "bar")]
-    public void When_Value_Not_Equals_Other_ThrowIfNotEqual_Throws_ArgumentOutOfRangeException<T>(T value, T other) where T : IEquatable<T>?
+    public void When_Value_Not_Equals_Other_ThrowIfNotEqual_Throws_ArgumentOutOfRangeException<T>(T value, T other) where T : IEquatable<T>
     {
         // Arrange - Act
         var action = () => ArgumentOutOfRangeExceptionExtensions.ThrowIfNotEqual(value, other);
@@ -45,7 +45,7 @@ public sealed class ArgumentOutOfRangeExceptionExtensionsTest
     [TestMethod($"{nameof(ArgumentOutOfRangeException)}.{nameof(ArgumentOutOfRangeExceptionExtensions.ThrowIfNotEqual)}() does not throw any {nameof(Exception)}")]
     [DataRow(1, 1)]
     [DataRow("foo", "foo")]
-    public void When_Value_Equals_Other_ThrowIfNotEqual_Does_Not_Throw_Exception<T>(T value, T other) where T : IEquatable<T>?
+    public void When_Value_Equals_Other_ThrowIfNotEqual_Does_Not_Throw_Exception<T>(T value, T other) where T : IEquatable<T>
     {
         // Arrange - Act
         var action = () => ArgumentOutOfRangeExceptionExtensions.ThrowIfNotEqual(value, other);
