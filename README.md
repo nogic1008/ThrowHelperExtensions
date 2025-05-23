@@ -10,4 +10,46 @@ Use ThrowHelper methods (ex. `ArgumentException.ThrowIfNull`) on your elderly .N
 
 ## Usage
 
-WIP
+### 1. Set `LangVersion` to C# 14 (preview)
+
+This package uses [Extension members](https://learn.microsoft.com/dotnet/csharp/whats-new/csharp-14#extension-members) feature on C# 14.
+
+Please Add below on your `.csproj` or `Directory.Build.props`.
+
+```xml
+<PropertyGroup>
+  <!-- 14.0 -->
+  <LangVersion>preview</LangVersion>
+</PropertyGroup>
+```
+
+### 3. Use throw helpers
+
+```csharp
+// Import namespace to use extension class
+using Nogic.ThrowHelperExtensions;
+// Or use `global using` on your `.csproj`
+//  <ItemGroup>
+//    <Using Include="Nogic.ThrowHelperExtensions" />
+//  </ItemGroup>
+
+namespace Samples;
+
+public class Sample
+{
+    public string Value1 { get; }
+
+    public Sample(string? value1)
+    {
+        // On .NET 6.0 or higher, it calls `ArgumentNullException.ThrowIfNull` directly.
+        // On others, it calls `ThrowHelperExtensions.ThrowIfNull` polyfill via extension members.
+        ArgumentNullException.ThrowIfNull(value1);
+
+        this.Value1 = value1;
+    }
+}
+```
+
+## API
+
+- [`ArgumentNullException.ThrowIfNull(object?, string)`](https://learn.microsoft.com/dotnet/api/system.argumentnullexception.throwifnull?view=net-6.0#System_ArgumentNullException_ThrowIfNull_System_Object_System_String_)
