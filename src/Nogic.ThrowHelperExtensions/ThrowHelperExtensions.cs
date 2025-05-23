@@ -21,13 +21,13 @@ public static class ThrowHelperExtensions
 #if NET7_0_OR_GREATER
         [Obsolete($"Use {nameof(ArgumentException)}.{nameof(ThrowIfNullOrEmpty)}(string?, string?) directly instead.")]
 #endif
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfNullOrEmpty([NotNull] string? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         {
             if (string.IsNullOrEmpty(argument))
                 Throw(argument, paramName);
 
             [DoesNotReturn]
+            [MethodImpl(MethodImplOptions.NoInlining)]
             static void Throw(string? argument, string? paramName)
             {
                 ArgumentNullException.ThrowIfNull(argument, paramName);
@@ -50,11 +50,10 @@ public static class ThrowHelperExtensions
 #if NET6_0_OR_GREATER
         [Obsolete($"Use {nameof(ArgumentNullException)}.{nameof(ThrowIfNull)}(object?, string?) directly instead.")]
 #endif
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfNull([NotNull] object? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         {
             if (argument is null)
-                Throw(paramName);
+                ThrowArgumentNullException(paramName);
         }
 
         /// <summary>
@@ -67,15 +66,42 @@ public static class ThrowHelperExtensions
         [Obsolete($"Use {nameof(ArgumentNullException)}.{nameof(ThrowIfNull)}(void*, string?) directly instead.")]
 #endif
         [CLSCompliant(false)]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public unsafe static void ThrowIfNull([NotNull] void* argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         {
             if (argument is null)
-                Throw(paramName);
+                ThrowArgumentNullException(paramName);
         }
 
         [DoesNotReturn]
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private static void Throw(string? paramName) => throw new ArgumentNullException(paramName);
+        private static void ThrowArgumentNullException(string? paramName) => throw new ArgumentNullException(paramName);
+    }
+
+    /// <summary>
+    /// Extension for <see cref="ObjectDisposedException"/>.
+    /// </summary>
+    extension(ObjectDisposedException)
+    {
+#if NET7_0_OR_GREATER
+        [Obsolete($"Use {nameof(ObjectDisposedException)}.{nameof(ThrowIf)}(bool, object) directly instead.")]
+#endif
+        public static void ThrowIf([DoesNotReturnIf(true)] bool condition, object instance)
+        {
+            if (condition)
+                ThrowObjectDisposedException(instance.GetType());
+        }
+
+#if NET7_0_OR_GREATER
+        [Obsolete($"Use {nameof(ObjectDisposedException)}.{nameof(ThrowIf)}(bool, Type) directly instead.")]
+#endif
+        public static void ThrowIf([DoesNotReturnIf(true)] bool condition, Type type)
+        {
+            if (condition)
+                ThrowObjectDisposedException(type);
+        }
+
+        [DoesNotReturn]
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void ThrowObjectDisposedException(Type type) => throw new ArgumentNullException(type.FullName);
     }
 }
