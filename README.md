@@ -52,5 +52,6 @@ public class Sample
 
 ## API
 
-- [`ArgumentNullException.ThrowIfNull(object?, string)`](https://learn.microsoft.com/dotnet/api/system.argumentnullexception.throwifnull?view=net-6.0#System_ArgumentNullException_ThrowIfNull_System_Object_System_String_)
-- [`ArgumentNullException.ThrowIfNull(void*, string)`](https://learn.microsoft.com/dotnet/api/system.argumentnullexception.throwifnull?view=net-7.0#system-argumentnullexception-throwifnull(system-void*-system-string))
+- [`ArgumentException.ThrowIfNullOrEmpty(string?, string?)`](https://learn.microsoft.com/dotnet/api/system.argumentexception.throwifnullorempty?view=net-7.0)
+- [`ArgumentNullException.ThrowIfNull(object?, string?)`](https://learn.microsoft.com/dotnet/api/system.argumentnullexception.throwifnull?view=net-6.0#System_ArgumentNullException_ThrowIfNull_System_Object_System_String_)
+- [`ArgumentNullException.ThrowIfNull(void*, string?)`](https://learn.microsoft.com/dotnet/api/system.argumentnullexception.throwifnull?view=net-7.0#system-argumentnullexception-throwifnull(system-void*-system-string))

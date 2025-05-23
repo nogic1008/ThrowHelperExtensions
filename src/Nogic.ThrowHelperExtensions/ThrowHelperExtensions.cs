@@ -9,6 +9,34 @@ namespace Nogic.ThrowHelperExtensions;
 public static class ThrowHelperExtensions
 {
     /// <summary>
+    /// Extension for <see cref="ArgumentException"/>.
+    /// </summary>
+    extension(ArgumentException)
+    {
+        /// <summary>Throws an exception if <paramref name="argument"/> is <see langword="null"/> or empty.</summary>
+        /// <param name="argument">The string argument to validate as non-null and non-empty.</param>
+        /// <param name="paramName"><inheritdoc cref="ThrowIfNull(object?, string?)" path="/param[@name='paramName']"/></param>
+        /// <exception cref="ArgumentNullException"><inheritdoc cref="ThrowIfNull(object?, string?)" path="/exception"/></exception>
+        /// <exception cref="ArgumentException"><paramref name="argument"/> is empty.</exception>
+#if NET7_0_OR_GREATER
+        [Obsolete($"Use {nameof(ArgumentException)}.{nameof(ThrowIfNullOrEmpty)}(string?, string?) directly instead.")]
+#endif
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void ThrowIfNullOrEmpty([NotNull] string? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
+        {
+            if (string.IsNullOrEmpty(argument))
+                Throw(argument, paramName);
+
+            [DoesNotReturn]
+            static void Throw(string? argument, string? paramName)
+            {
+                ArgumentNullException.ThrowIfNull(argument, paramName);
+                throw new ArgumentException($"Argument '{paramName}' cannot be empty.", paramName);
+            }
+        }
+    }
+
+    /// <summary>
     /// Extension for <see cref="ArgumentNullException"/>.
     /// </summary>
     extension(ArgumentNullException)
@@ -20,7 +48,7 @@ public static class ThrowHelperExtensions
         /// <param name="paramName">The name of the parameter with which <paramref name="argument"/> corresponds.</param>
         /// <exception cref="ArgumentNullException"><paramref name="argument"/> is <see langword="null"/>.</exception>
 #if NET6_0_OR_GREATER
-        [Obsolete($"Use {nameof(ArgumentNullException)}.{nameof(ThrowIfNull)}(object?, string) directly instead.")]
+        [Obsolete($"Use {nameof(ArgumentNullException)}.{nameof(ThrowIfNull)}(object?, string?) directly instead.")]
 #endif
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ThrowIfNull([NotNull] object? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
@@ -36,7 +64,7 @@ public static class ThrowHelperExtensions
         /// <param name="paramName"><inheritdoc cref="ThrowIfNull(object?, string?)" path="/param[@name='paramName']"/></param>
         /// <exception cref="ArgumentNullException"><inheritdoc cref="ThrowIfNull(object?, string?)" path="/exception"/></exception>
 #if NET7_0_OR_GREATER
-        [Obsolete($"Use {nameof(ArgumentNullException)}.{nameof(ThrowIfNull)}(void*, string) directly instead.")]
+        [Obsolete($"Use {nameof(ArgumentNullException)}.{nameof(ThrowIfNull)}(void*, string?) directly instead.")]
 #endif
         [CLSCompliant(false)]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
