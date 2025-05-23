@@ -23,7 +23,7 @@ Please Add below on your `.csproj` or `Directory.Build.props`.
 </PropertyGroup>
 ```
 
-### 3. Use throw helpers
+### 2. Use throw helpers
 
 ```csharp
 // Import namespace to use extension class
@@ -39,7 +39,7 @@ public class Sample
 {
     public string Value1 { get; }
 
-    public Sample(string? value1)
+    public Sample(string value1)
     {
         // On .NET 6.0 or higher, it calls `ArgumentNullException.ThrowIfNull` directly.
         // On others, it calls `ThrowHelperExtensions.ThrowIfNull` polyfill via extension members.
@@ -53,20 +53,20 @@ public class Sample
 ## API
 
 - [`ArgumentException.ThrowIfNullOrEmpty(string?, string?)`](https://learn.microsoft.com/dotnet/api/system.argumentexception.throwifnullorempty?view=net-7.0)
-- [`ArgumentException.ThrowIfNullOrWhiteSpace(string argument, string? paramName = null)`](https://learn.microsoft.com/dotnet/api/system.argumentexception.throwifnullorwhitespace?view=net-8.0)
+- [`ArgumentException.ThrowIfNullOrWhiteSpace(string?, string?)`](https://learn.microsoft.com/dotnet/api/system.argumentexception.throwifnullorwhitespace?view=net-8.0)
 - [`ArgumentNullException.ThrowIfNull(object?, string?)`](https://learn.microsoft.com/dotnet/api/system.argumentnullexception.throwifnull?view=net-6.0#System_ArgumentNullException_ThrowIfNull_System_Object_System_String_)
 - [`ArgumentNullException.ThrowIfNull(void*, string?)`](https://learn.microsoft.com/dotnet/api/system.argumentnullexception.throwifnull?view=net-7.0#system-argumentnullexception-throwifnull(system-void*-system-string))
 - [`ObjectDisposedException.ThrowIf(bool, object)`](https://learn.microsoft.com/dotnet/api/system.objectdisposedexception.throwif?view=net-7.0#system-objectdisposedexception-throwif(system-boolean-system-object))
 - [`ObjectDisposedException.ThrowIf(bool, Type)`](https://learn.microsoft.com/dotnet/api/system.objectdisposedexception.throwif?view=net-7.0#system-objectdisposedexception-throwif(system-boolean-system-type))
-- [`ArgumentOutOfRangeException.ThrowIfEqual<T>(T value, T other, string? paramName = null) where T : IEquatable<T>?`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifequal?view=net-8.0)
-- [`ArgumentOutOfRangeException.ThrowIfGreaterThan<T>(T value, T other, string? paramName = null) where T : IComparable<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifgreaterthan?view=net-8.0)
-- [`ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual<T>(T value, T other, string? paramName = null) where T : IComparable<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifgreaterthanorequal?view=net-8.0)
-- [`ArgumentOutOfRangeException.ThrowIfLessThan<T>(T value, T other, string? paramName = null) where T : IComparable<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwiflessthan?view=net-8.0)
-- [`ArgumentOutOfRangeException.ThrowIfLessThanOrEqual<T>(T value, T other, string? paramName = null) where T : IComparable<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwiflessthanorequal?view=net-8.0)
-- [`ArgumentOutOfRangeException.ThrowIfNegative<T>(T value, string? paramName = null) where T : INumberBase<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifnegative?view=net-8.0)
-  - On .NET 6 or below (including .NET Standard 2.0), this method only has overloads for the built-in numeric types. (`sbyte`, `short`, `int`, `long`, `float`, `double`, `decimal`, `nint`)
-- [`ArgumentOutOfRangeException.ThrowIfNegativeOrZero<T>(T value, string? paramName = null) where T : INumberBase<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifnegativeorzero?view=net-8.0)
-  - On .NET 6 or below (including .NET Standard 2.0), this method only has overloads for the built-in numeric types. (`sbyte`, `short`, `int`, `long`, `float`, `double`, `decimal`, `nint`)
-- [`ArgumentOutOfRangeException.ThrowIfNotEqual<T>(T value, T other, string? paramName = null) where T : IEquatable<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifnotequal?view=net-8.0)
-- [`ArgumentOutOfRangeException.ThrowIfZero<T>(T value, string? paramName = null) where T : INumberBase<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifzero?view=net-8.0)
-  - On .NET 6 or below (including .NET Standard 2.0), this method only has overloads for the built-in numeric types. (`byte`, `sbyte`, `short`, `ushort`, `int`, `uint`, `long`, `ulong`, `float`, `double`, `decimal`, `nint`, `nuint`, `char`)
+- [`ArgumentOutOfRangeException.ThrowIfEqual<T>(T, T, string?) where T : IEquatable<T>?`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifequal?view=net-8.0)
+- [`ArgumentOutOfRangeException.ThrowIfGreaterThan<T>(T, T, string?) where T : IComparable<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifgreaterthan?view=net-8.0)
+- [`ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual<T>(T, T, string?) where T : IComparable<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifgreaterthanorequal?view=net-8.0)
+- [`ArgumentOutOfRangeException.ThrowIfLessThan<T>(T, T, string?) where T : IComparable<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwiflessthan?view=net-8.0)
+- [`ArgumentOutOfRangeException.ThrowIfLessThanOrEqual<T>(T, T, string) where T : IComparable<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwiflessthanorequal?view=net-8.0)
+- [`ArgumentOutOfRangeException.ThrowIfNegative<T>(T, string?) where T : INumberBase<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifnegative?view=net-8.0) [^1]
+- [`ArgumentOutOfRangeException.ThrowIfNegativeOrZero<T>(T, string?) where T : INumberBase<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifnegativeorzero?view=net-8.0) [^1]
+- [`ArgumentOutOfRangeException.ThrowIfNotEqual<T>(T, T, string?) where T : IEquatable<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifnotequal?view=net-8.0)
+- [`ArgumentOutOfRangeException.ThrowIfZero<T>(T, string?) where T : INumberBase<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifzero?view=net-8.0) [^1]
+
+[^1]: [`INumberBase<T>`](https://learn.microsoft.com/dotnet/api/system.numerics.inumberbase-1?view=net-7.0) is not available in .NET 6.0 or below (including .NET Standard 2.0).
+  So, this method only has overloads for the built-in numeric types. (`byte`, `sbyte`, `short`, `ushort`, `int`, `uint`, `long`, `ulong`, `float`, `double`, `decimal`, `nint`, `nuint`, `char`)
