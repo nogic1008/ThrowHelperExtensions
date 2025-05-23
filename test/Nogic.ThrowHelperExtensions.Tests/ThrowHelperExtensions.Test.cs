@@ -151,4 +151,49 @@ public sealed class ThrowHelperExtensionsTest
             action.ShouldNotThrow();
         }
     }
+
+    /// <summary>
+    /// Unit test for <see cref="ObjectDisposedException"/> extension members
+    /// </summary>
+    [TestClass]
+    public sealed class ObjectDisposedExceptionTest
+    {
+        [TestMethod($"{nameof(ObjectDisposedException)}.{nameof(ThrowHelperExtensions.ThrowIf)}(true, <object or Type>) throws {nameof(ObjectDisposedException)}")]
+        public void When_Condition_Is_True_ThrowIf_Throws_ObjectDisposedException()
+        {
+            // Arrange
+            object? argument = new();
+            // Act
+#if NET7_0_OR_GREATER
+#pragma warning disable CS0618
+#endif
+            var throwIfObject = () => ThrowHelperExtensions.ThrowIf(true, argument);
+            var throwIfType = () => ThrowHelperExtensions.ThrowIf(true, typeof(object));
+#if NET7_0_OR_GREATER
+#pragma warning restore CS0618
+#endif
+            // Assert
+            throwIfObject.ShouldThrow<ObjectDisposedException>();
+            throwIfType.ShouldThrow<ObjectDisposedException>();
+        }
+
+        [TestMethod($"{nameof(ObjectDisposedException)}.{nameof(ThrowHelperExtensions.ThrowIf)}(false, <object or Type>) does not throws any {nameof(Exception)}")]
+        public void When_Condition_Is_False_ThrowIf_Does_Not_Throws_Exception()
+        {
+            // Arrange
+            object? argument = new();
+            // Act
+#if NET7_0_OR_GREATER
+#pragma warning disable CS0618
+#endif
+            var throwIfObject = () => ThrowHelperExtensions.ThrowIf(false, argument);
+            var throwIfType = () => ThrowHelperExtensions.ThrowIf(false, typeof(object));
+#if NET7_0_OR_GREATER
+#pragma warning restore CS0618
+#endif
+            // Assert
+            throwIfObject.ShouldNotThrow();
+            throwIfType.ShouldNotThrow();
+        }
+    }
 }
