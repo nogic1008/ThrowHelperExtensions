@@ -6,23 +6,8 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/nogic1008/ThrowHelperExtensions/badge)](https://www.codefactor.io/repository/github/nogic1008/ThrowHelperExtensions)
 [![License](https://img.shields.io/github/license/nogic1008/ThrowHelperExtensions)](LICENSE)
 
-Use ThrowHelper methods (ex. `ArgumentException.ThrowIfNull`) on your .NET Standard project
+Use ThrowHelper methods (ex. `ArgumentException.ThrowIfNull`) on your elderly .NET project
 
-## Setup
+## Usage
 
-```console
-> dotnet restore
-```
-
-## Commands
-
-```console
-# Lint & Fix
-> dotnet format
-
-# Unit Test
-> dotnet test
-
-# Build
-> dotnet build
-```
+WIP
