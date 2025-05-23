@@ -67,6 +67,63 @@ public sealed class ThrowHelperExtensionsTest
             // Assert
             action.ShouldNotThrow();
         }
+
+        [TestMethod($"{nameof(ArgumentException)}.{nameof(ThrowHelperExtensions.ThrowIfNullOrWhiteSpace)}(null) throws {nameof(ArgumentNullException)}")]
+        public void When_Argument_Is_Null_ThrowIfNullOrWhiteSpace_Throws_ArgumentNullException()
+        {
+            // Arrange
+            string? argument = null;
+
+            // Act
+#if NET8_0_OR_GREATER
+#pragma warning disable CS0618
+#endif
+            var action = () => ThrowHelperExtensions.ThrowIfNullOrWhiteSpace(argument!);
+#if NET8_0_OR_GREATER
+#pragma warning restore CS0618
+#endif
+
+            // Assert
+            action.ShouldThrow<ArgumentNullException>().ParamName.ShouldBe(nameof(argument));
+        }
+
+        [TestMethod($"{nameof(ArgumentException)}.{nameof(ThrowHelperExtensions.ThrowIfNullOrWhiteSpace)}(<white space>) throws {nameof(ArgumentException)}")]
+        [DataRow("")]
+        [DataRow(" ")]
+        [DataRow("　")]
+        public void When_Argument_Is_WhiteSpace_ThrowIfNullOrWhiteSpace_Throws_ArgumentException(string argument)
+        {
+            // Arrange - Act
+#if NET8_0_OR_GREATER
+#pragma warning disable CS0618
+#endif
+            var action = () => ThrowHelperExtensions.ThrowIfNullOrWhiteSpace(argument);
+#if NET8_0_OR_GREATER
+#pragma warning restore CS0618
+#endif
+
+            // Assert
+            action.ShouldThrow<ArgumentException>().ParamName.ShouldBe(nameof(argument));
+        }
+
+        [TestMethod($"{nameof(ArgumentNullException)}.{nameof(ThrowHelperExtensions.ThrowIfNullOrWhiteSpace)}(\"foo\") does not throws any {nameof(Exception)}")]
+        public void When_Argument_Is_Not_WhiteSpace_ThrowIfNullOrWhiteSpace_Does_Not_Throw_Exception()
+        {
+            // Arrange
+            string? argument = "foo";
+
+            // Act
+#if NET8_0_OR_GREATER
+#pragma warning disable CS0618
+#endif
+            var action = () => ThrowHelperExtensions.ThrowIfNullOrWhiteSpace(argument);
+#if NET8_0_OR_GREATER
+#pragma warning restore CS0618
+#endif
+
+            // Assert
+            action.ShouldNotThrow();
+        }
     }
 
     /// <summary>
