@@ -336,21 +336,21 @@ public sealed class ArgumentOutOfRangeExceptionExtensionsTest
     public void When_Value_Is_Not_Negative_Or_Zero_ThrowIfNegativeOrZero_Does_Not_Throw()
     {
         sbyte sbyteValue1 = 1;
-        ShouldNotThrow(() => ArgumentOutOfRangeExceptionExtensions.ThrowIfNegative(sbyteValue1));
+        ShouldNotThrow(() => ArgumentOutOfRangeExceptionExtensions.ThrowIfNegativeOrZero(sbyteValue1));
         short shortValue1 = 1;
-        ShouldNotThrow(() => ArgumentOutOfRangeExceptionExtensions.ThrowIfNegative(shortValue1));
+        ShouldNotThrow(() => ArgumentOutOfRangeExceptionExtensions.ThrowIfNegativeOrZero(shortValue1));
         int intValue1 = 1;
-        ShouldNotThrow(() => ArgumentOutOfRangeExceptionExtensions.ThrowIfNegative(intValue1));
+        ShouldNotThrow(() => ArgumentOutOfRangeExceptionExtensions.ThrowIfNegativeOrZero(intValue1));
         long longValue1 = 1;
-        ShouldNotThrow(() => ArgumentOutOfRangeExceptionExtensions.ThrowIfNegative(longValue1));
+        ShouldNotThrow(() => ArgumentOutOfRangeExceptionExtensions.ThrowIfNegativeOrZero(longValue1));
         float floatValue1 = 1;
-        ShouldNotThrow(() => ArgumentOutOfRangeExceptionExtensions.ThrowIfNegative(floatValue1));
+        ShouldNotThrow(() => ArgumentOutOfRangeExceptionExtensions.ThrowIfNegativeOrZero(floatValue1));
         double doubleValue1 = 1;
-        ShouldNotThrow(() => ArgumentOutOfRangeExceptionExtensions.ThrowIfNegative(doubleValue1));
+        ShouldNotThrow(() => ArgumentOutOfRangeExceptionExtensions.ThrowIfNegativeOrZero(doubleValue1));
         decimal decimalValue1 = 1;
-        ShouldNotThrow(() => ArgumentOutOfRangeExceptionExtensions.ThrowIfNegative(decimalValue1));
+        ShouldNotThrow(() => ArgumentOutOfRangeExceptionExtensions.ThrowIfNegativeOrZero(decimalValue1));
         nint nintValue1 = 1;
-        ShouldNotThrow(() => ArgumentOutOfRangeExceptionExtensions.ThrowIfNegative(nintValue1));
+        ShouldNotThrow(() => ArgumentOutOfRangeExceptionExtensions.ThrowIfNegativeOrZero(nintValue1));
 
         static void ShouldNotThrow(Action action) => action.ShouldNotThrow();
     }
