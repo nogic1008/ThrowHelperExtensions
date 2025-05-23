@@ -3,6 +3,7 @@ namespace Nogic.ThrowHelperExtensions.Tests;
 /// <summary>
 /// Unit test class for <see cref="ArgumentOutOfRangeExceptionExtensions"/>
 /// </summary>
+[TestClass]
 public sealed class ArgumentOutOfRangeExceptionExtensionsTest
 {
     [TestMethod($"{nameof(ArgumentOutOfRangeException)}.{nameof(ArgumentOutOfRangeExceptionExtensions.ThrowIfEqual)}() throws {nameof(ArgumentOutOfRangeException)}")]
