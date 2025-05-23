@@ -50,7 +50,7 @@ public sealed class ThrowHelperExtensionsTest
         }
 
         [TestMethod($"{nameof(ArgumentNullException)}.{nameof(ThrowHelperExtensions.ThrowIfNullOrEmpty)}(\"foo\") does not throws any {nameof(Exception)}")]
-        public void When_Argument_Is_Not_Empty_String_ThrowIfNullOrEmpty_Does_Not_Throws_Exception()
+        public void When_Argument_Is_Not_Empty_String_ThrowIfNullOrEmpty_Does_Not_Throw_Exception()
         {
             // Arrange
             string? argument = "foo";
