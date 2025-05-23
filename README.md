@@ -62,7 +62,7 @@ public class Sample
 - [`ArgumentOutOfRangeException.ThrowIfGreaterThan<T>(T, T, string?) where T : IComparable<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifgreaterthan?view=net-8.0)
 - [`ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual<T>(T, T, string?) where T : IComparable<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifgreaterthanorequal?view=net-8.0)
 - [`ArgumentOutOfRangeException.ThrowIfLessThan<T>(T, T, string?) where T : IComparable<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwiflessthan?view=net-8.0)
-- [`ArgumentOutOfRangeException.ThrowIfLessThanOrEqual<T>(T, T, string) where T : IComparable<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwiflessthanorequal?view=net-8.0)
+- [`ArgumentOutOfRangeException.ThrowIfLessThanOrEqual<T>(T, T, string?) where T : IComparable<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwiflessthanorequal?view=net-8.0)
 - [`ArgumentOutOfRangeException.ThrowIfNegative<T>(T, string?) where T : INumberBase<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifnegative?view=net-8.0) [^1]
 - [`ArgumentOutOfRangeException.ThrowIfNegativeOrZero<T>(T, string?) where T : INumberBase<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifnegativeorzero?view=net-8.0) [^1]
 - [`ArgumentOutOfRangeException.ThrowIfNotEqual<T>(T, T, string?) where T : IEquatable<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifnotequal?view=net-8.0)
