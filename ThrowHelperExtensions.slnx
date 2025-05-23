@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/Nogic.ThrowHelperExtensions/Nogic.ThrowHelperExtensions.csproj" />
+  <Project Path="test/Nogic.ThrowHelperExtensions.Tests/Nogic.ThrowHelperExtensions.Tests.csproj" />
+</Solution>
