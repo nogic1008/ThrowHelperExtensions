@@ -2,15 +2,15 @@
   <PropertyGroup>
     <!-- Meta Options -->
     <Authors>Nogic</Authors>
-    <Copyright>©2019-2024 Nogic</Copyright>
-    <PackageProjectUrl>https://github.com/nogic1008/dotnet-ci-example</PackageProjectUrl>
+    <Copyright>©2025 Nogic</Copyright>
+    <PackageProjectUrl>https://github.com/nogic1008/ThrowHelperExtensions</PackageProjectUrl>
     <RepositoryUrl>$(PackageProjectUrl)</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
 
     <!-- Build Options -->
     <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
-    <LangVersion>12.0</LangVersion>
+    <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>

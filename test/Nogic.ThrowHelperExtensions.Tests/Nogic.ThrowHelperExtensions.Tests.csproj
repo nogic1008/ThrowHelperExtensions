@@ -1,11 +1,11 @@
-<Project Sdk="MSTest.Sdk/3.3.1">
+<Project Sdk="MSTest.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net9.0;net8.0;net48</TargetFrameworks>
+    <TargetFrameworks>net10.0;net9.0;net8.0;net6.0;net48</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Shouldly" Version="4.3.0" />
+    <PackageReference Include="Shouldly" />
   </ItemGroup>
 
   <ItemGroup>
@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../src/Sample.Core/Sample.Core.csproj" />
+    <ProjectReference Include="../../src/Nogic.ThrowHelperExtensions/Nogic.ThrowHelperExtensions.csproj" />
   </ItemGroup>
 
 </Project>

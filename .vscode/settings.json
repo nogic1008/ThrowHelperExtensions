@@ -1,0 +1,4 @@
+{
+  "dotnet.defaultSolution": "ThrowHelperExtensions.slnx",
+  "dotnet.automaticallyCreateSolutionInWorkspace": false
+}

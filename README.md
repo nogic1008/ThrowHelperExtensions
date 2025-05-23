@@ -1,28 +1,13 @@
-# dotnet-ci-example
+# ThrowHelperExtensions
 
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/nogic1008/dotnet-ci-example)](https://github.com/nogic1008/dotnet-ci-example/releases)
-[![.NET CI](https://github.com/nogic1008/dotnet-ci-example/actions/workflows/dotnet-ci.yml/badge.svg)](https://github.com/nogic1008/dotnet-ci-example/actions/workflows/dotnet-ci.yml)
-[![codecov](https://codecov.io/gh/nogic1008/dotnet-ci-example/branch/main/graph/badge.svg?token=wkwjZuMLHC)](https://codecov.io/gh/nogic1008/dotnet-ci-example)
-[![CodeFactor](https://www.codefactor.io/repository/github/nogic1008/dotnet-ci-example/badge)](https://www.codefactor.io/repository/github/nogic1008/dotnet-ci-example)
-[![License](https://img.shields.io/github/license/nogic1008/dotnet-ci-example)](LICENSE)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/nogic1008/ThrowHelperExtensions)](https://github.com/nogic1008/ThrowHelperExtensions/releases)
+[![.NET CI](https://github.com/nogic1008/ThrowHelperExtensions/actions/workflows/dotnet-ci.yml/badge.svg)](https://github.com/nogic1008/ThrowHelperExtensions/actions/workflows/dotnet-ci.yml)
+[![codecov](https://codecov.io/gh/nogic1008/ThrowHelperExtensions/graph/badge.svg?token=r9tFgjErCH)](https://codecov.io/gh/nogic1008/ThrowHelperExtensions)
+[![CodeFactor](https://www.codefactor.io/repository/github/nogic1008/ThrowHelperExtensions/badge)](https://www.codefactor.io/repository/github/nogic1008/ThrowHelperExtensions)
+[![License](https://img.shields.io/github/license/nogic1008/ThrowHelperExtensions)](LICENSE)
 
-Example of .NET + Github Actions
+Use ThrowHelper methods (ex. `ArgumentException.ThrowIfNull`) on your elderly .NET project
 
-## Setup
+## Usage
 
-```console
-> dotnet restore
-```
-
-## Commands
-
-```console
-# Lint & Fix
-> dotnet format
-
-# Unit Test
-> dotnet test
-
-# Build
-> dotnet build
-```
+WIP
