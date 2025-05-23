@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../src/Sample.Core/Sample.Core.csproj" />
+    <ProjectReference Include="../../src/Nogic.ThrowHelperExtensions/Nogic.ThrowHelperExtensions.csproj" />
   </ItemGroup>
 
 </Project>
