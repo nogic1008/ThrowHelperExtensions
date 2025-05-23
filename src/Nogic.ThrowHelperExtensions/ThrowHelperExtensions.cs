@@ -30,7 +30,7 @@ public static class ThrowHelperExtensions
             static void Throw(string? argument, string? paramName)
             {
                 ArgumentNullException.ThrowIfNull(argument, paramName);
-                throw new ArgumentException($"Argument '{paramName}' cannot be empty.", paramName);
+                throw new ArgumentException("Value cannot be an empty string.", paramName);
             }
         }
     }
