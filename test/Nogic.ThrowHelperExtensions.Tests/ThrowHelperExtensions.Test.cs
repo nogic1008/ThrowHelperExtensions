@@ -21,7 +21,7 @@ public sealed class ThrowHelperExtensionsTest
 #if NET7_0_OR_GREATER
 #pragma warning disable CS0618
 #endif
-            var action = () => ThrowHelperExtensions.ThrowIfNullOrEmpty(argument);
+            var action = () => ThrowHelperExtensions.ThrowIfNullOrEmpty(argument!);
 #if NET7_0_OR_GREATER
 #pragma warning restore CS0618
 #endif
@@ -85,7 +85,7 @@ public sealed class ThrowHelperExtensionsTest
 #if NET6_0_OR_GREATER
 #pragma warning disable CS0618
 #endif
-            var action = () => ThrowHelperExtensions.ThrowIfNull(argument);
+            var action = () => ThrowHelperExtensions.ThrowIfNull(argument!);
 #if NET6_0_OR_GREATER
 #pragma warning restore CS0618
 #endif
