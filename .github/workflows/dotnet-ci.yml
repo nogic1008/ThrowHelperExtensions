@@ -73,4 +73,4 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: ${{ runner.os }},${{ matrix.framework }}
           disable_search: true
-          files: "./test/Sample.Test/bin/Debug/${{ matrix.framework }}/TestResults/cobertura.xml"
+          files: "./test/Nogic.ThrowHelperExtensions.Tests/bin/Debug/${{ matrix.framework }}/TestResults/cobertura.xml"
