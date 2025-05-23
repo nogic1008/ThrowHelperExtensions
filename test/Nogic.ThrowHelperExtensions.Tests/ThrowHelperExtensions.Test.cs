@@ -178,7 +178,7 @@ public sealed class ThrowHelperExtensionsTest
         }
 
         [TestMethod($"{nameof(ObjectDisposedException)}.{nameof(ThrowHelperExtensions.ThrowIf)}(false, <object or Type>) does not throws any {nameof(Exception)}")]
-        public void When_Condition_Is_False_ThrowIf_Does_Not_Throws_Exception()
+        public void When_Condition_Is_False_ThrowIf_Does_Not_Throw_Exception()
         {
             // Arrange
             object? argument = new();
