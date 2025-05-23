@@ -56,11 +56,11 @@ public sealed class ThrowHelperExtensionsTest
             string? argument = "foo";
 
             // Act
-#if NET6_0_OR_GREATER
+#if NET7_0_OR_GREATER
 #pragma warning disable CS0618
 #endif
             var action = () => ThrowHelperExtensions.ThrowIfNullOrEmpty(argument);
-#if NET6_0_OR_GREATER
+#if NET7_0_OR_GREATER
 #pragma warning restore CS0618
 #endif
 
