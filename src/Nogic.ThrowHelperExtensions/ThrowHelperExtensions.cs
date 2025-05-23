@@ -21,6 +21,9 @@ public static class ThrowHelperExtensions
 #if NET7_0_OR_GREATER
         [Obsolete($"Use {nameof(ArgumentException)}.{nameof(ThrowIfNullOrEmpty)}(string?, string?) directly instead.")]
 #endif
+#if NETSTANDARD2_0
+#pragma warning disable CS8777
+#endif
         public static void ThrowIfNullOrEmpty([NotNull] string? argument, [CallerArgumentExpression(nameof(argument))] string? paramName = null)
         {
             if (string.IsNullOrEmpty(argument))
@@ -33,6 +36,9 @@ public static class ThrowHelperExtensions
                 throw new ArgumentException("Value cannot be an empty string.", paramName);
             }
         }
+#if NETSTANDARD2_0
+#pragma warning restore CS8777
+#endif
     }
 
     /// <summary>
