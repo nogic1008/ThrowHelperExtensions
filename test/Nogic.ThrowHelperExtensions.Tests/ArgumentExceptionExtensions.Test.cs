@@ -1,5 +1,3 @@
-using System.Numerics;
-
 namespace Nogic.ThrowHelperExtensions.Tests;
 
 /// <summary>

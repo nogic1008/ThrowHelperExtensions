@@ -6,6 +6,15 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IsAotCompatible Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net8.0'))">true</IsAotCompatible>
+    <SuppressTfmSupportBuildWarnings Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net9.0'))">true</SuppressTfmSupportBuildWarnings>
+
+    <PolySharpIncludeGeneratedTypes>
+      System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute;
+      System.Diagnostics.CodeAnalysis.DoesNotReturnIfAttribute;
+      System.Diagnostics.CodeAnalysis.NotNullAttribute;
+      System.Runtime.CompilerServices.CallerArgumentExpressionAttribute;
+    </PolySharpIncludeGeneratedTypes>
   </PropertyGroup>
 
   <ItemGroup>
