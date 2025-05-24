@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="sandbox/Samples/Samples.csproj" />
+  <Project Path="src/Nogic.ThrowHelperExtensions.Generator/Nogic.ThrowHelperExtensions.Generator.csproj" />
   <Project Path="src/Nogic.ThrowHelperExtensions/Nogic.ThrowHelperExtensions.csproj" />
   <Project Path="test/Nogic.ThrowHelperExtensions.Tests/Nogic.ThrowHelperExtensions.Tests.csproj" />
 </Solution>
