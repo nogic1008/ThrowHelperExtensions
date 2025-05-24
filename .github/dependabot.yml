@@ -10,7 +10,7 @@ updates:
       interval: daily
       time: '08:00'
       timezone: Japan
-    milestone: 1
+    milestone: 2
     labels:
       - 'dependabot :robot:'
     commit-message:
@@ -25,7 +25,7 @@ updates:
       interval: daily
       time: '08:00'
       timezone: Japan
-    milestone: 1
+    milestone: 2
     labels:
       - 'dependabot :robot:'
     commit-message:
@@ -38,7 +38,7 @@ updates:
       interval: daily
       time: '08:00'
       timezone: Japan
-    milestone: 1
+    milestone: 2
     labels:
       - 'dependabot :robot:'
     commit-message:
@@ -51,7 +51,7 @@ updates:
       interval: daily
       time: '08:00'
       timezone: Japan
-    milestone: 1
+    milestone: 2
     labels:
       - 'dependabot :robot:'
     commit-message:
