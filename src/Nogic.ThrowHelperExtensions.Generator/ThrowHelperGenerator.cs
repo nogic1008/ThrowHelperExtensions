@@ -27,6 +27,7 @@ public class ThrowHelperGenerator : IIncrementalGenerator
     /// </summary>
     private readonly ConcurrentDictionary<string, SourceText> manifestSources = new();
 
+    /// <inheritdoc />
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         // Generate EmbeddedAttribute first
@@ -35,44 +36,6 @@ public class ThrowHelperGenerator : IIncrementalGenerator
         // Generate ExceptionPolyfills and necessary attributes
         var availableTypes = context.CompilationProvider.SelectMany(GetNeedGenerateTypes);
         context.RegisterSourceOutput(availableTypes, this.EmitGeneratedType);
-    }
-
-    /// <summary>
-    /// Generates EmbeddedAttribute source code.
-    /// </summary>
-    /// <param name="context">Context for post-initialization.</param>
-    private static void EmitEmbeddedAttribute(IncrementalGeneratorPostInitializationContext context)
-    {
-        if (context.CancellationToken.IsCancellationRequested)
-            return;
-
-        if (!EmbeddedResources.TryGetValue(EmbeddedAttribute, out string? resource))
-            return;
-        using var stream = typeof(ThrowHelperGenerator).Assembly.GetManifestResourceStream(resource)!;
-        using var reader = new StreamReader(stream);
-        string source = reader.ReadToEnd();
-        context.AddSource($"{EmbeddedAttribute}.g.cs", source);
-    }
-
-    /// <summary>
-    /// Emits a generated source file for the specified type into the compilation context.
-    /// </summary>
-    /// <param name="context">The source production context.</param>
-    /// <param name="typeName">The name of the type for which the generated source file should be emitted.</param>
-    private void EmitGeneratedType(SourceProductionContext context, string typeName)
-    {
-        if (context.CancellationToken.IsCancellationRequested)
-            return;
-
-        if (!this.manifestSources.TryGetValue(typeName, out var sourceText))
-        {
-            string resource = EmbeddedResources[typeName];
-            using var stream = typeof(ThrowHelperGenerator).Assembly.GetManifestResourceStream(resource)!;
-            sourceText = SourceText.From(stream, Encoding.UTF8, canBeEmbedded: true);
-
-            _ = this.manifestSources.TryAdd(typeName, sourceText);
-        }
-        context.AddSource($"{typeName}.g.cs", sourceText);
     }
 
     private static ImmutableArray<string> GetNeedGenerateTypes(Compilation compilation, CancellationToken token)
@@ -86,7 +49,10 @@ public class ThrowHelperGenerator : IIncrementalGenerator
         {
             string fullTypeName = kvp.Key;
             if (fullTypeName != EmbeddedAttribute && !IsTypeAlreadyExists(compilation, fullTypeName, token))
-                builder.Add(fullTypeName);
+            {
+                if (!fullTypeName.EndsWith("Unsafe", StringComparison.Ordinal) || ((CSharpCompilation)compilation).Options.AllowUnsafe)
+                    builder.Add(fullTypeName);
+            }
         }
         return builder.ToImmutable();
 
@@ -105,5 +71,44 @@ public class ThrowHelperGenerator : IIncrementalGenerator
 
             return false;
         }
+    }
+
+    /// <summary>
+    /// Generates EmbeddedAttribute source code.
+    /// </summary>
+    /// <param name="context">Context for post-initialization.</param>
+    private static void EmitEmbeddedAttribute(IncrementalGeneratorPostInitializationContext context)
+    {
+        if (context.CancellationToken.IsCancellationRequested)
+            return;
+
+        if (!EmbeddedResources.TryGetValue(EmbeddedAttribute, out string? resource))
+            return;
+
+        using var stream = typeof(ThrowHelperGenerator).Assembly.GetManifestResourceStream(resource);
+        using var reader = new StreamReader(stream);
+        string source = reader.ReadToEnd();
+        context.AddSource($"{EmbeddedAttribute}.g.cs", source);
+    }
+
+    /// <summary>
+    /// Emits a generated source file for the specified type into the compilation context.
+    /// </summary>
+    /// <param name="context">The source production context.</param>
+    /// <param name="typeName">The name of the type for which the generated source file should be emitted.</param>
+    private void EmitGeneratedType(SourceProductionContext context, string typeName)
+    {
+        if (context.CancellationToken.IsCancellationRequested)
+            return;
+
+        if (!this.manifestSources.TryGetValue(typeName, out var sourceText))
+        {
+            string resource = EmbeddedResources[typeName];
+            using var stream = typeof(ThrowHelperGenerator).Assembly.GetManifestResourceStream(resource);
+            sourceText = SourceText.From(stream, Encoding.UTF8, canBeEmbedded: true);
+
+            _ = this.manifestSources.TryAdd(typeName, sourceText);
+        }
+        context.AddSource($"{typeName}.g.cs", sourceText);
     }
 }
