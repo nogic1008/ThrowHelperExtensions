@@ -22,7 +22,7 @@ jobs:
         with:
           dotnet-version: ${{ vars.DOTNET_SDK_VERSIONS }}
           cache: true
-          cache-dependency-path: Directory.Packages.props
+          cache-dependency-path: '**/packages.lock.json'
 
       - name: Restore
         run: dotnet restore --locked-mode
