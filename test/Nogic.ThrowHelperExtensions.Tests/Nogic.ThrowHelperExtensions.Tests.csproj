@@ -1,4 +1,4 @@
-<Project Sdk="MSTest.Sdk">
+﻿<Project Sdk="MSTest.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net48;net6.0;net8.0;net9.0;net10.0</TargetFrameworks>
@@ -17,7 +17,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../src/Nogic.ThrowHelperExtensions/Nogic.ThrowHelperExtensions.csproj" />
+    <ProjectReference Include="../../src/Nogic.ThrowHelperExtensions.Generator/Nogic.ThrowHelperExtensions.Generator.csproj">
+      <OutputItemType>Analyzer</OutputItemType>
+      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
+    </ProjectReference>
   </ItemGroup>
 
 </Project>
