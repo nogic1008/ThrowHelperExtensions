@@ -9,7 +9,7 @@
     <File Path="README.md" />
   </Folder>
   <Folder Name="/src/">
-    <Project Path="src/Nogic.ThrowHelperExtensions.Generator/Nogic.ThrowHelperExtensions.Generator.csproj" />
+    <Project Path="src/Nogic.ThrowHelperExtensions/Nogic.ThrowHelperExtensions.csproj" />
   </Folder>
   <Folder Name="/test/">
     <Project Path="test/Nogic.ThrowHelperExtensions.Tests/Nogic.ThrowHelperExtensions.Tests.csproj" />

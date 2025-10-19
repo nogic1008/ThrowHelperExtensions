@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../src/Nogic.ThrowHelperExtensions.Generator/Nogic.ThrowHelperExtensions.Generator.csproj">
+    <ProjectReference Include="../../src/Nogic.ThrowHelperExtensions/Nogic.ThrowHelperExtensions.csproj">
       <OutputItemType>Analyzer</OutputItemType>
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
     </ProjectReference>

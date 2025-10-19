@@ -6,13 +6,13 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 
-namespace Nogic.ThrowHelperExtensions.Generator;
+namespace Nogic.ThrowHelperExtensions;
 
 [Generator(LanguageNames.CSharp)]
 public class ThrowHelperGenerator : IIncrementalGenerator
 {
     private const string EmbeddedAttribute = "Microsoft.CodeAnalysis.EmbeddedAttribute";
-    private static readonly Regex EmbeddedResourceNameToFullyQualifiedTypeNameRegex = new(@"^Nogic\.ThrowHelperExtensions\.Generator\.EmbeddedResources\.(\w+(?:\.\w+)+)\.cs$", RegexOptions.Compiled);
+    private static readonly Regex EmbeddedResourceNameToFullyQualifiedTypeNameRegex = new(@"^Nogic\.ThrowHelperExtensions\.EmbeddedResources\.(\w+(?:\.\w+)+)\.cs$", RegexOptions.Compiled);
 
     /// <summary>
     /// Dictionary of embedded resource names mapped to their fully qualified type names.
