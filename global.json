@@ -4,7 +4,7 @@
     "rollForward": "latestFeature",
     "allowPrerelease": true
   },
-  "msbuild-sdks": {
-    "MSTest.Sdk": "3.8.3"
+  "test": {
+    "runner": "Microsoft.Testing.Platform"
   }
 }

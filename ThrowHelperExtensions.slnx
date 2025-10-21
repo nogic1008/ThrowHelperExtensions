@@ -1,5 +1,17 @@
 <Solution>
-  <Project Path="sandbox/Samples/Samples.csproj" />
-  <Project Path="src/Nogic.ThrowHelperExtensions/Nogic.ThrowHelperExtensions.csproj" />
-  <Project Path="test/Nogic.ThrowHelperExtensions.Tests/Nogic.ThrowHelperExtensions.Tests.csproj" />
+  <Folder Name="/_Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Nogic.ThrowHelperExtensions/Nogic.ThrowHelperExtensions.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/Nogic.ThrowHelperExtensions.Tests/Nogic.ThrowHelperExtensions.Tests.csproj" />
+  </Folder>
 </Solution>
