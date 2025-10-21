@@ -15,6 +15,9 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write  # enable GitHub OIDC token issuance
+
     steps:
       - uses: actions/checkout@v4.2.2
       - name: Setup .NET SDK
@@ -24,6 +27,12 @@ jobs:
           cache: true
           cache-dependency-path: '**/packages.lock.json'
 
+      - name: Login to NuGet (with OIDC)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ vars.NUGET_USER_NAME }}
+
       - name: Restore
         run: dotnet restore --locked-mode
       - name: Release Build & Pack
@@ -32,7 +41,7 @@ jobs:
           TAG_VERSION: ${{ github.event.release.tag_name }} # v0.0.0-abc
 
       - name: Publish to NuGet
-        run: dotnet nuget push "nupkgs/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
+        run: dotnet nuget push "nupkgs/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key ${{ steps.login.outputs.NUGET_API_KEY }}
       - name: Upload Build Assets
         uses: actions/upload-artifact@v4.6.2
         with:
