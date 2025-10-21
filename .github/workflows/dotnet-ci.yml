@@ -17,7 +17,7 @@ jobs:
     name: Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.2.2
+      - uses: actions/checkout@v5.0.0
       - name: Setup .NET SDK # detected from global.json
         uses: actions/setup-dotnet@v4.3.1
       - name: Add Problem Matcher for dotnet-format
@@ -29,7 +29,7 @@ jobs:
     name: Validate NuGet Lock Files
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.2.2
+      - uses: actions/checkout@v5.0.0
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4.3.1
         with:
@@ -49,7 +49,7 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         framework: [net10.0, net9.0, net8.0, net6.0]
     steps:
-      - uses: actions/checkout@v4.2.2
+      - uses: actions/checkout@v5.0.0
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4.3.1
         with:
