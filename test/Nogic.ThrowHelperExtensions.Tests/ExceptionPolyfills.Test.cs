@@ -391,85 +391,103 @@ public sealed class ExceptionPolyfillsTest
     /// <param name="expectedOverloadTypes">Expected parameter types for specific overloads to verify</param>
     private static void VerifyPolyfillMethod(Type frameworkType, string methodName, MethodInfo[] polyfillMethods, params Type[] expectedOverloadTypes)
     {
-        // Check if framework has the method with specific signature
-        var frameworkMethods = frameworkType.GetMethods(BindingFlags.Public | BindingFlags.Static);
-        bool hasBuiltInMethod = frameworkMethods
-            .Any(m => m.Name == methodName && DoesMethodMatchExpectedSignature(m, expectedOverloadTypes));
+        bool hasBuiltInMethod = HasFrameworkMethod(frameworkType, methodName, expectedOverloadTypes);
 
-        // Verify polyfill method exists when framework lacks built-in version
         if (!hasBuiltInMethod)
         {
-            bool hasPolyfillOverload = polyfillMethods
-                .Any(m => m.Name == methodName && DoesMethodMatchExpectedSignature(m, expectedOverloadTypes));
-            string typeNames = string.Join(", ", expectedOverloadTypes.Select(t => t.Name));
-            hasPolyfillOverload.ShouldBeTrue($"{frameworkType.Name}.{methodName} should have polyfill overload with parameters ({typeNames}) when framework lacks built-in version");
+            AssertPolyfillMethodExists(frameworkType, methodName, polyfillMethods, expectedOverloadTypes);
+        }
+    }
+
+    /// <summary>
+    /// Checks if the framework already has the specified method with the expected signature
+    /// </summary>
+    /// <param name="frameworkType">The framework exception type to check</param>
+    /// <param name="methodName">The method name to check</param>
+    /// <param name="expectedOverloadTypes">Expected parameter types</param>
+    /// <returns>True if the framework has the method</returns>
+    private static bool HasFrameworkMethod(Type frameworkType, string methodName, Type[] expectedOverloadTypes)
+    {
+        var frameworkMethods = frameworkType.GetMethods(BindingFlags.Public | BindingFlags.Static);
+        return frameworkMethods.Any(m => m.Name == methodName && DoesMethodMatchExpectedSignature(m, expectedOverloadTypes));
+    }
+
+    /// <summary>
+    /// Asserts that a polyfill method exists with the expected signature
+    /// </summary>
+    /// <param name="frameworkType">The framework exception type</param>
+    /// <param name="methodName">The method name</param>
+    /// <param name="polyfillMethods">Available polyfill methods</param>
+    /// <param name="expectedOverloadTypes">Expected parameter types</param>
+    private static void AssertPolyfillMethodExists(Type frameworkType, string methodName, MethodInfo[] polyfillMethods, Type[] expectedOverloadTypes)
+    {
+        bool hasPolyfillOverload = polyfillMethods
+            .Any(m => m.Name == methodName && DoesMethodMatchExpectedSignature(m, expectedOverloadTypes));
+        string typeNames = string.Join(", ", expectedOverloadTypes.Select(t => t.Name));
+        hasPolyfillOverload.ShouldBeTrue($"{frameworkType.Name}.{methodName} should have polyfill overload with parameters ({typeNames}) when framework lacks built-in version");
+    }
+
+    /// <summary>
+    /// Checks if a method matches the expected signature, with optional string? parameter at the end
+    /// </summary>
+    /// <param name="method">The method to check</param>
+    /// <param name="expectedOverloadTypes">Expected parameter types (excluding optional string? parameter)</param>
+    /// <returns>True if the method matches the expected signature</returns>
+    private static bool DoesMethodMatchExpectedSignature(MethodInfo method, Type[] expectedOverloadTypes)
+    {
+        var parameters = method.GetParameters();
+        int expectedCount = expectedOverloadTypes.Length;
+
+        // Method can have expected parameters with or without optional string parameter
+        if (parameters.Length != expectedCount && parameters.Length != expectedCount + 1)
+            return false;
+
+        // Check that the first N parameters match exactly
+        for (int i = 0; i < expectedCount; i++)
+        {
+            if (!DoesParameterTypeMatch(parameters[i].ParameterType, expectedOverloadTypes[i], method))
+                return false;
         }
 
-        /// <summary>
-        /// Checks if a method matches the expected signature, with optional string? parameter at the end
-        /// </summary>
-        /// <param name="method">The method to check</param>
-        /// <param name="expectedOverloadTypes">Expected parameter types (excluding optional string? parameter)</param>
-        /// <returns>True if the method matches the expected signature</returns>
-        static bool DoesMethodMatchExpectedSignature(MethodInfo method, Type[] expectedOverloadTypes)
-        {
-            var parameters = method.GetParameters();
-            int expectedCount = expectedOverloadTypes.Length;
+        // If there's an additional parameter, verify it's an optional string
+        return parameters.Length == expectedCount ||
+            (parameters[expectedCount].ParameterType == typeof(string) && parameters[expectedCount].HasDefaultValue);
+    }
 
-            // Method can have expected parameters with or without optional string parameter
-            if (parameters.Length != expectedCount && parameters.Length != expectedCount + 1)
+    /// <summary>
+    /// Checks if a parameter type matches the expected type, handling generic constraints
+    /// </summary>
+    /// <param name="actualType">The actual parameter type</param>
+    /// <param name="expectedType">The expected parameter type</param>
+    /// <param name="method">The method containing the parameter</param>
+    /// <returns>True if the types match considering generic constraints</returns>
+    private static bool DoesParameterTypeMatch(Type actualType, Type expectedType, MethodInfo method)
+    {
+        // Direct type match
+        if (actualType == expectedType)
+            return true;
+
+        // Handle generic method parameters with constraints
+        if (!method.IsGenericMethodDefinition || !actualType.IsGenericParameter || !expectedType.IsGenericTypeDefinition)
+            return false;
+
+        var constraints = actualType.GetGenericParameterConstraints();
+
+        // For generic constraints like IEquatable<T>, IComparable<T>, or INumberBase<T>:
+        // The constraint should be the expected interface with T as the same generic parameter
+        return constraints.Any(constraint =>
+        {
+            if (!constraint.IsGenericType)
                 return false;
 
-            // Check that the first N parameters match exactly
-            for (int i = 0; i < expectedCount; i++)
-            {
-                if (!DoesParameterTypeMatch(parameters[i].ParameterType, expectedOverloadTypes[i], method))
-                    return false;
-            }
+            var constraintDefinition = constraint.GetGenericTypeDefinition();
+            if (constraintDefinition != expectedType)
+                return false;
 
-            // If there's an additional parameter, verify it's an optional string
-            return parameters.Length == expectedCount ||
-                (parameters[expectedCount].ParameterType == typeof(string) && parameters[expectedCount].HasDefaultValue);
-        }
-
-        /// <summary>
-        /// Checks if a parameter type matches the expected type, handling generic constraints
-        /// </summary>
-        /// <param name="actualType">The actual parameter type</param>
-        /// <param name="expectedType">The expected parameter type</param>
-        /// <param name="method">The method containing the parameter</param>
-        /// <returns>True if the types match considering generic constraints</returns>
-        static bool DoesParameterTypeMatch(Type actualType, Type expectedType, MethodInfo method)
-        {
-            // Direct type match
-            if (actualType == expectedType)
-                return true;
-
-            // Handle generic method parameters with constraints
-            if (method.IsGenericMethodDefinition && actualType.IsGenericParameter && expectedType.IsGenericTypeDefinition)
-            {
-                var constraints = actualType.GetGenericParameterConstraints();
-
-                // For generic constraints like IEquatable<T>, IComparable<T>, or INumberBase<T>:
-                // The constraint should be the expected interface with T as the same generic parameter
-                return constraints.Any(constraint =>
-                {
-                    if (constraint.IsGenericType)
-                    {
-                        var constraintDefinition = constraint.GetGenericTypeDefinition();
-                        if (constraintDefinition == expectedType)
-                        {
-                            // Verify that T in the constraint (e.g., IEquatable<T>) is the same as our generic parameter
-                            var constraintArgs = constraint.GetGenericArguments();
-                            return constraintArgs.Length == 1 && constraintArgs[0] == actualType;
-                        }
-                    }
-                    return false;
-                });
-            }
-
-            return false;
-        }
+            // Verify that T in the constraint (e.g., IEquatable<T>) is the same as our generic parameter
+            var constraintArgs = constraint.GetGenericArguments();
+            return constraintArgs.Length == 1 && constraintArgs[0] == actualType;
+        });
     }
     #endregion Extension Methods Verification
 }
