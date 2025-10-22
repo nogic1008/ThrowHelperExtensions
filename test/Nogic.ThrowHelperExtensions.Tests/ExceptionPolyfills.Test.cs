@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace Nogic.ThrowHelperExtensions.Tests;
 
 /// <summary>
@@ -307,4 +309,153 @@ public sealed class ExceptionPolyfillsTest
         ShouldNotThrow(() => ObjectDisposedException.ThrowIf(false, typeof(object)));
     }
     #endregion ObjectDisposedException
+
+    #region Extension Methods Verification
+    [TestMethod($"{nameof(ExceptionPolyfills)} should contain expected extension methods")]
+    public void ExceptionPolyfills_Should_Contain_Expected_Extension_Methods()
+    {
+        var polyfillMethods = typeof(ExceptionPolyfills)
+            .GetMethods(BindingFlags.Public | BindingFlags.Static);
+
+        VerifyPolyfillMethod(typeof(ArgumentNullException), "ThrowIfNull", polyfillMethods, typeof(object));
+        VerifyPolyfillMethod(typeof(ArgumentNullException), "ThrowIfNull", polyfillMethods, typeof(void*));
+        VerifyPolyfillMethod(typeof(ArgumentException), "ThrowIfNullOrEmpty", polyfillMethods, typeof(string));
+        VerifyPolyfillMethod(typeof(ArgumentException), "ThrowIfNullOrWhiteSpace", polyfillMethods, typeof(string));
+        VerifyPolyfillMethod(typeof(ArgumentOutOfRangeException), "ThrowIfEqual", polyfillMethods, typeof(IEquatable<>), typeof(IEquatable<>));
+        VerifyPolyfillMethod(typeof(ArgumentOutOfRangeException), "ThrowIfNotEqual", polyfillMethods, typeof(IEquatable<>), typeof(IEquatable<>));
+        VerifyPolyfillMethod(typeof(ArgumentOutOfRangeException), "ThrowIfGreaterThan", polyfillMethods, typeof(IComparable<>), typeof(IComparable<>));
+        VerifyPolyfillMethod(typeof(ArgumentOutOfRangeException), "ThrowIfGreaterThanOrEqual", polyfillMethods, typeof(IComparable<>), typeof(IComparable<>));
+        VerifyPolyfillMethod(typeof(ArgumentOutOfRangeException), "ThrowIfLessThan", polyfillMethods, typeof(IComparable<>), typeof(IComparable<>));
+        VerifyPolyfillMethod(typeof(ArgumentOutOfRangeException), "ThrowIfLessThanOrEqual", polyfillMethods, typeof(IComparable<>), typeof(IComparable<>));
+
+        // Numeric validation methods - verify they exist as either generic or specific overloads
+        if (Type.GetType("System.Numerics.INumberBase`1") is Type numberBaseType)
+        {
+            // For frameworks with INumberBase<T>, verify generic method existence with proper constraints
+            VerifyPolyfillMethod(typeof(ArgumentOutOfRangeException), "ThrowIfZero", polyfillMethods, numberBaseType);
+            VerifyPolyfillMethod(typeof(ArgumentOutOfRangeException), "ThrowIfNegative", polyfillMethods, numberBaseType);
+            VerifyPolyfillMethod(typeof(ArgumentOutOfRangeException), "ThrowIfNegativeOrZero", polyfillMethods, numberBaseType);
+        }
+        else
+        {
+            // For frameworks without INumberBase<T>, verify specific type overloads
+            Type[] unsignedNumericTypes = [
+                typeof(byte), typeof(ushort),
+                typeof(uint), typeof(ulong),
+                typeof(nuint), typeof(char)
+            ];
+            Type[] signedNumericTypes =
+            [
+                typeof(sbyte), typeof(short),
+                typeof(int), typeof(long),
+                typeof(float), typeof(double),
+                typeof(decimal), typeof(nint)
+            ];
+
+            foreach (var numericType in unsignedNumericTypes)
+                VerifyPolyfillMethod(typeof(ArgumentOutOfRangeException), "ThrowIfZero", polyfillMethods, numericType);
+
+            foreach (var type in signedNumericTypes)
+            {
+                VerifyPolyfillMethod(typeof(ArgumentOutOfRangeException), "ThrowIfZero", polyfillMethods, type);
+                VerifyPolyfillMethod(typeof(ArgumentOutOfRangeException), "ThrowIfNegative", polyfillMethods, type);
+                VerifyPolyfillMethod(typeof(ArgumentOutOfRangeException), "ThrowIfNegativeOrZero", polyfillMethods, type);
+            }
+        }
+
+        VerifyPolyfillMethod(typeof(ObjectDisposedException), "ThrowIf", polyfillMethods, typeof(bool), typeof(object));
+        VerifyPolyfillMethod(typeof(ObjectDisposedException), "ThrowIf", polyfillMethods, typeof(bool), typeof(Type));
+
+        /// <summary>
+        /// Verifies that polyfill methods exist when framework lacks built-in implementation
+        /// </summary>
+        /// <param name="frameworkType">The framework exception type to check</param>
+        /// <param name="methodName">The method name to verify</param>
+        /// <param name="polyfillMethods">All available polyfill methods</param>
+        /// <param name="expectedOverloadTypes">Expected parameter types for specific overloads to verify</param>
+        static void VerifyPolyfillMethod(Type frameworkType, string methodName, MethodInfo[] polyfillMethods, params Type[] expectedOverloadTypes)
+        {
+            // Check if framework has the method with specific signature
+            var frameworkMethods = frameworkType.GetMethods(BindingFlags.Public | BindingFlags.Static);
+            bool hasBuiltInMethod = frameworkMethods
+                .Any(m => m.Name == methodName && DoesMethodMatchExpectedSignature(m, expectedOverloadTypes));
+
+            // Verify polyfill method exists when framework lacks built-in version
+            if (!hasBuiltInMethod)
+            {
+                bool hasPolyfillOverload = polyfillMethods
+                    .Any(m => m.Name == methodName && DoesMethodMatchExpectedSignature(m, expectedOverloadTypes));
+                string typeNames = string.Join(", ", expectedOverloadTypes.Select(t => t.Name));
+                hasPolyfillOverload.ShouldBeTrue($"{frameworkType.Name}.{methodName} should have polyfill overload with parameters ({typeNames}) when framework lacks built-in version");
+            }
+
+            /// <summary>
+            /// Checks if a method matches the expected signature, with optional string? parameter at the end
+            /// </summary>
+            /// <param name="method">The method to check</param>
+            /// <param name="expectedOverloadTypes">Expected parameter types (excluding optional string? parameter)</param>
+            /// <returns>True if the method matches the expected signature</returns>
+            static bool DoesMethodMatchExpectedSignature(MethodInfo method, Type[] expectedOverloadTypes)
+            {
+                var parameters = method.GetParameters();
+                int expectedCount = expectedOverloadTypes.Length;
+
+                // Method can have expected parameters with or without optional string parameter
+                if (parameters.Length != expectedCount && parameters.Length != expectedCount + 1)
+                    return false;
+
+                // Check that the first N parameters match exactly
+                for (int i = 0; i < expectedCount; i++)
+                {
+                    if (!DoesParameterTypeMatch(parameters[i].ParameterType, expectedOverloadTypes[i], method))
+                        return false;
+                }
+
+                // If there's an additional parameter, verify it's an optional string
+                return parameters.Length == expectedCount ||
+                    (parameters[expectedCount].ParameterType == typeof(string) && parameters[expectedCount].HasDefaultValue);
+            }
+
+            /// <summary>
+            /// Checks if a parameter type matches the expected type, handling generic constraints
+            /// </summary>
+            /// <param name="actualType">The actual parameter type</param>
+            /// <param name="expectedType">The expected parameter type</param>
+            /// <param name="method">The method containing the parameter</param>
+            /// <returns>True if the types match considering generic constraints</returns>
+            static bool DoesParameterTypeMatch(Type actualType, Type expectedType, MethodInfo method)
+            {
+                // Direct type match
+                if (actualType == expectedType)
+                    return true;
+
+                // Handle generic method parameters with constraints
+                if (method.IsGenericMethodDefinition && actualType.IsGenericParameter && expectedType.IsGenericTypeDefinition)
+                {
+                    var constraints = actualType.GetGenericParameterConstraints();
+
+                    // For generic constraints like IEquatable<T>, IComparable<T>, or INumberBase<T>:
+                    // The constraint should be the expected interface with T as the same generic parameter
+                    return constraints.Any(constraint =>
+                    {
+                        if (constraint.IsGenericType)
+                        {
+                            var constraintDefinition = constraint.GetGenericTypeDefinition();
+                            if (constraintDefinition == expectedType)
+                            {
+                                // Verify that T in the constraint (e.g., IEquatable<T>) is the same as our generic parameter
+                                var constraintArgs = constraint.GetGenericArguments();
+                                return constraintArgs.Length == 1 && constraintArgs[0] == actualType;
+                            }
+                        }
+                        return false;
+                    });
+                }
+
+                return false;
+            }
+        }
+    }
+    #endregion Extension Methods Verification
+
 }
