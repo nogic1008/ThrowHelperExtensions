@@ -18,7 +18,6 @@ Please Add below on your `.csproj` or `Directory.Build.props`.
 
 ```xml
 <PropertyGroup>
-  <!-- 14.0 -->
   <LangVersion>preview</LangVersion>
 </PropertyGroup>
 ```
@@ -75,3 +74,20 @@ public class Sample
 
 - Except for `ArgumentNullException.ThrowIfNull`, exception messages are not localized.
 - The generated class `System.ExceptionPolyfills` is `internal`.
+
+## Options
+
+### ThrowHelperExtensionsGenerateAttributes
+
+By default, this generator will generate necessary attribute types. (ex. `DoesNotReturnAttribute`)
+If you want to disable attribute generation (for example, use other generator like [PolySharp](https://www.nuget.org/packages/PolySharp/)), you can set the following MSBuild property in your project file:
+
+```xml
+  <PropertyGroup>
+    <ThrowHelperExtensionsGenerateAttributes>false</ThrowHelperExtensionsGenerateAttributes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <CompilerVisibleProperty Include="ThrowHelperExtensionsGenerateAttributes" />
+  </ItemGroup>
+```

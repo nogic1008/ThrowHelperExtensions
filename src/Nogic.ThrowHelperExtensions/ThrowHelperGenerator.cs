@@ -30,15 +30,30 @@ public class ThrowHelperGenerator : IIncrementalGenerator
     /// <inheritdoc />
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        // Generate EmbeddedAttribute first
+        // Generate EmbeddedAttribute first (always safe to generate)
         context.RegisterPostInitializationOutput(EmitEmbeddedAttribute);
 
-        // Generate ExceptionPolyfills and necessary attributes
-        var availableTypes = context.CompilationProvider.SelectMany(GetNeedGenerateTypes);
+        // Generate ExceptionPolyfills and necessary attributes with options
+        var buildOptions = context.AnalyzerConfigOptionsProvider.Select(static (options, token) =>
+        {
+            token.ThrowIfCancellationRequested();
+            var globalOptions = options.GlobalOptions;
+            bool generateAttributes = true;
+
+            // Try to read the build property
+            if (globalOptions.TryGetValue("build_property.ThrowHelperExtensionsGenerateAttributes", out string? generateValue))
+            {
+                generateAttributes = !string.Equals(generateValue, "false", StringComparison.OrdinalIgnoreCase);
+            }
+
+            return generateAttributes;
+        });
+        var compilationWithConfig = context.CompilationProvider.Combine(buildOptions);
+        var availableTypes = compilationWithConfig.SelectMany(static (x, token) => GetNeedGenerateTypes(x.Left, x.Right, token));
         context.RegisterSourceOutput(availableTypes, this.EmitGeneratedType);
     }
 
-    private static ImmutableArray<string> GetNeedGenerateTypes(Compilation compilation, CancellationToken token)
+    private static ImmutableArray<string> GetNeedGenerateTypes(Compilation compilation, bool generateAttributes, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
         if (((CSharpCompilation)compilation).LanguageVersion < (LanguageVersion)1400) // ExceptionPolyfills uses C# 14.0 features
@@ -48,7 +63,16 @@ public class ThrowHelperGenerator : IIncrementalGenerator
         foreach (var kvp in EmbeddedResources)
         {
             string fullTypeName = kvp.Key;
-            if (fullTypeName != EmbeddedAttribute && !IsTypeAlreadyExists(compilation, fullTypeName, token))
+            // Skip EmbeddedAttribute as it's handled separately in post-initialization
+            if (fullTypeName == EmbeddedAttribute)
+                continue;
+
+            // Skip attribute generation if disabled via build property
+            if (IsAttributeType(fullTypeName) && !generateAttributes)
+                continue;
+
+            // For other types, check if they already exist to avoid conflicts with built-in types
+            if (!IsTypeAlreadyExists(compilation, fullTypeName, token))
             {
                 if (!fullTypeName.EndsWith("Unsafe", StringComparison.Ordinal) || ((CSharpCompilation)compilation).Options.AllowUnsafe)
                     builder.Add(fullTypeName);
@@ -68,9 +92,10 @@ public class ThrowHelperGenerator : IIncrementalGenerator
                 if (compilation.IsSymbolAccessibleWithin(item, compilation.Assembly))
                     return true;
             }
-
             return false;
         }
+
+        static bool IsAttributeType(string fullTypeName) => fullTypeName.EndsWith("Attribute", StringComparison.Ordinal);
     }
 
     /// <summary>
