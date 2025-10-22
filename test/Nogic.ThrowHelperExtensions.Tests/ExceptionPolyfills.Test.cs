@@ -85,9 +85,11 @@ public sealed class ExceptionPolyfillsTest
 
     [TestMethod($"{nameof(ArgumentNullException)}.ThrowIfNull(<not null>) does not throw any {nameof(Exception)}")]
     public void When_Argument_Is_Not_Null_ThrowIfNull_Does_Not_Throw_Exception()
-#pragma warning disable CS2264 // Do not pass a non-nullable value to 'ArgumentNullException.ThrowIfNull'
+#pragma warning disable IDE0079 // Remove unnecessary suppression
+#pragma warning disable CA2264 // Do not pass a non-nullable value to 'ArgumentNullException.ThrowIfNull'
         => ShouldNotThrow(static () => ArgumentNullException.ThrowIfNull(new object()));
-#pragma warning restore CS2264
+#pragma warning restore CA2264 // Do not pass a non-nullable value to 'ArgumentNullException.ThrowIfNull'
+#pragma warning restore IDE0079 // Remove unnecessary suppression
 
     [TestMethod($"{nameof(ArgumentNullException)}.ThrowIfNull(<null pointer>) throws {nameof(ArgumentNullException)}")]
     public unsafe void When_Argument_Is_Null_Pointer_ThrowIfNull_Throws_ArgumentNullException()
@@ -457,5 +459,4 @@ public sealed class ExceptionPolyfillsTest
         }
     }
     #endregion Extension Methods Verification
-
 }
