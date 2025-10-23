@@ -12,6 +12,7 @@
     <Project Path="src/Nogic.ThrowHelperExtensions/Nogic.ThrowHelperExtensions.csproj" />
   </Folder>
   <Folder Name="/test/">
+    <Project Path="test/WithOtherGenerator/WithOtherGenerator.csproj" />
     <Project Path="test/Nogic.ThrowHelperExtensions.Tests/Nogic.ThrowHelperExtensions.Tests.csproj" />
   </Folder>
 </Solution>

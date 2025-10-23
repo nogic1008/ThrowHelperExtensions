@@ -1,4 +1,4 @@
-﻿<Project Sdk="MSTest.Sdk/3.11.0">
+<Project Sdk="MSTest.Sdk/3.11.0">
   <PropertyGroup>
     <TargetFrameworks>net48;net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
