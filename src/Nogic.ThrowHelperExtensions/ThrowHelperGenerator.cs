@@ -82,6 +82,7 @@ public class ThrowHelperGenerator : IIncrementalGenerator
     /// <param name="compilation">The current compilation context.</param>
     /// <param name="generateAttributes">Whether attribute generation is enabled.</param>
     /// <param name="token">Cancellation token to monitor for cancellation requests.</param>
+    /// <returns>True if the type should be generated; otherwise, false.</returns>
     private static bool ShouldGenerateType(string fullTypeName, Compilation compilation, bool generateAttributes, CancellationToken token)
     {
         // Skip EmbeddedAttribute as it's handled separately in post-initialization
