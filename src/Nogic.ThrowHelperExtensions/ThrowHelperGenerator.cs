@@ -49,53 +49,79 @@ public class ThrowHelperGenerator : IIncrementalGenerator
             return generateAttributes;
         });
         var compilationWithConfig = context.CompilationProvider.Combine(buildOptions);
-        var availableTypes = compilationWithConfig.SelectMany(static (x, token) => GetNeedGenerateTypes(x.Left, x.Right, token));
+        var availableTypes = compilationWithConfig.SelectMany(GetNeedGenerateTypes);
         context.RegisterSourceOutput(availableTypes, this.EmitGeneratedType);
     }
 
-    private static ImmutableArray<string> GetNeedGenerateTypes(Compilation compilation, bool generateAttributes, CancellationToken token)
+    /// <summary>
+    /// Determines which types need to be generated based on the compilation context and configuration.
+    /// </summary>
+    /// <param name="config">A tuple containing the compilation and whether to generate attributes.</param>
+    /// <param name="token">Cancellation token to monitor for cancellation requests.</param>
+    /// <returns>An immutable array of fully qualified type names that need to be generated.</returns>
+    private static ImmutableArray<string> GetNeedGenerateTypes((Compilation compilation, bool generateAttributes) config, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
-        if (((CSharpCompilation)compilation).LanguageVersion < (LanguageVersion)1400) // ExceptionPolyfills uses C# 14.0 features
+        if (((CSharpCompilation)config.compilation).LanguageVersion < (LanguageVersion)1400) // ExceptionPolyfills uses C# 14.0 features
             return ImmutableArray<string>.Empty;
 
         var builder = ImmutableArray.CreateBuilder<string>();
         foreach (var kvp in EmbeddedResources)
         {
             string fullTypeName = kvp.Key;
-            // Skip EmbeddedAttribute as it's handled separately in post-initialization
-            if (fullTypeName == EmbeddedAttribute)
-                continue;
-
-            // Skip attribute generation if disabled via build property
-            if (IsAttributeType(fullTypeName) && !generateAttributes)
-                continue;
-
-            // For other types, check if they already exist to avoid conflicts with built-in types
-            if (!IsTypeAlreadyExists(compilation, fullTypeName, token))
-            {
-                if (!fullTypeName.EndsWith("Unsafe", StringComparison.Ordinal) || ((CSharpCompilation)compilation).Options.AllowUnsafe)
-                    builder.Add(fullTypeName);
-            }
+            if (ShouldGenerateType(fullTypeName, config.compilation, config.generateAttributes, token))
+                builder.Add(fullTypeName);
         }
         return builder.ToImmutable();
+    }
 
-        static bool IsTypeAlreadyExists(Compilation compilation, string fullTypeName, CancellationToken token)
-        {
-            token.ThrowIfCancellationRequested();
-
-            if (compilation.GetTypeByMetadataName(fullTypeName) is INamedTypeSymbol typeSymbol)
-                return compilation.IsSymbolAccessibleWithin(typeSymbol, compilation.Assembly);
-
-            foreach (var item in compilation.GetTypesByMetadataName(fullTypeName))
-            {
-                if (compilation.IsSymbolAccessibleWithin(item, compilation.Assembly))
-                    return true;
-            }
+    /// <summary>
+    /// Determines whether a type should be generated based on the configuration and compilation context.
+    /// </summary>
+    /// <param name="fullTypeName">The fully qualified name of the type to check.</param>
+    /// <param name="compilation">The current compilation context.</param>
+    /// <param name="generateAttributes">Whether attribute generation is enabled.</param>
+    /// <param name="token">Cancellation token to monitor for cancellation requests.</param>
+    private static bool ShouldGenerateType(string fullTypeName, Compilation compilation, bool generateAttributes, CancellationToken token)
+    {
+        // Skip EmbeddedAttribute as it's handled separately in post-initialization
+        if (fullTypeName == EmbeddedAttribute)
             return false;
-        }
 
-        static bool IsAttributeType(string fullTypeName) => fullTypeName.EndsWith("Attribute", StringComparison.Ordinal);
+        // Skip attribute generation if disabled via build property
+        if (fullTypeName.EndsWith("Attribute", StringComparison.Ordinal) && !generateAttributes)
+            return false;
+
+        // Skip if type already exists to avoid conflicts
+        if (IsTypeAlreadyExists(compilation, fullTypeName, token))
+            return false;
+
+        // Skip unsafe types if unsafe code is not allowed
+        return !fullTypeName.EndsWith("Unsafe", StringComparison.Ordinal) || ((CSharpCompilation)compilation).Options.AllowUnsafe;
+    }
+
+    /// <summary>
+    /// Determines if a type already exists in the compilation to avoid conflicts.
+    /// </summary>
+    /// <param name="compilation">The current compilation context.</param>
+    /// <param name="fullTypeName">The fully qualified name of the type to check.</param>
+    /// <param name="token">Cancellation token to monitor for cancellation requests.</param>
+    /// <remarks>
+    /// This method cannot check other source generator's outputs because they are processed on other steps.
+    /// </remarks>
+    private static bool IsTypeAlreadyExists(Compilation compilation, string fullTypeName, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+
+        if (compilation.GetTypeByMetadataName(fullTypeName) is INamedTypeSymbol typeSymbol)
+            return compilation.IsSymbolAccessibleWithin(typeSymbol, compilation.Assembly);
+
+        foreach (var item in compilation.GetTypesByMetadataName(fullTypeName))
+        {
+            if (compilation.IsSymbolAccessibleWithin(item, compilation.Assembly))
+                return true;
+        }
+        return false;
     }
 
     /// <summary>
