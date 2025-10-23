@@ -48,9 +48,10 @@ public class ThrowHelperGenerator : IIncrementalGenerator
 
             return generateAttributes;
         });
-        var compilationWithConfig = context.CompilationProvider.Combine(buildOptions);
-        var availableTypes = compilationWithConfig.SelectMany(GetNeedGenerateTypes);
-        context.RegisterSourceOutput(availableTypes, this.EmitGeneratedType);
+
+        var compilationWithConfig = context.CompilationProvider.Combine(buildOptions).WithComparer(CompilationConfigComparer.Instance);
+        var availableTypes = compilationWithConfig.SelectMany(GetNeedGenerateTypes).Collect().WithComparer(TypeNamesComparer.Instance);
+        context.RegisterSourceOutput(availableTypes.SelectMany(static (types, _) => types), this.EmitGeneratedType);
     }
 
     /// <summary>
@@ -162,5 +163,45 @@ public class ThrowHelperGenerator : IIncrementalGenerator
             _ = this.manifestSources.TryAdd(typeName, sourceText);
         }
         context.AddSource($"{typeName}.g.cs", sourceText);
+    }
+
+    /// <summary>
+    /// Comparer for compilation and build options tuple to optimize incremental generation.
+    /// </summary>
+    private sealed class CompilationConfigComparer : IEqualityComparer<(Compilation compilation, bool generateAttributes)>
+    {
+        public static readonly CompilationConfigComparer Instance = new();
+
+        public bool Equals((Compilation compilation, bool generateAttributes) x, (Compilation compilation, bool generateAttributes) y) =>
+            x.generateAttributes == y.generateAttributes && ReferenceEquals(x.compilation, y.compilation);
+
+        public int GetHashCode((Compilation compilation, bool generateAttributes) obj)
+        {
+            unchecked
+            {
+                return (obj.compilation.GetHashCode() * 397) ^ obj.generateAttributes.GetHashCode();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Comparer for immutable arrays of type names to optimize incremental generation.
+    /// </summary>
+    private sealed class TypeNamesComparer : IEqualityComparer<ImmutableArray<string>>
+    {
+        public static readonly TypeNamesComparer Instance = new();
+
+        public bool Equals(ImmutableArray<string> x, ImmutableArray<string> y) => x.SequenceEqual(y);
+
+        public int GetHashCode(ImmutableArray<string> obj)
+        {
+            unchecked
+            {
+                int hash = obj.Length;
+                foreach (string item in obj)
+                    hash = (hash * 397) ^ item.GetHashCode();
+                return hash;
+            }
+        }
     }
 }
