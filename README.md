@@ -83,6 +83,7 @@ By default, this generator will generate necessary attribute types. (ex. `DoesNo
 If you want to disable attribute generation (for example, use other generator like [PolySharp](https://www.nuget.org/packages/PolySharp/)), you can set the following MSBuild property in your project file:
 
 ```xml
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ThrowHelperExtensionsGenerateAttributes>false</ThrowHelperExtensionsGenerateAttributes>
   </PropertyGroup>
@@ -90,4 +91,5 @@ If you want to disable attribute generation (for example, use other generator li
   <ItemGroup>
     <CompilerVisibleProperty Include="ThrowHelperExtensionsGenerateAttributes" />
   </ItemGroup>
+</Project>
 ```
