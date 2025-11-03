@@ -87,9 +87,5 @@ If you want to disable attribute generation (for example, use other generator li
   <PropertyGroup>
     <ThrowHelperExtensionsGenerateAttributes>false</ThrowHelperExtensionsGenerateAttributes>
   </PropertyGroup>
-
-  <ItemGroup>
-    <CompilerVisibleProperty Include="ThrowHelperExtensionsGenerateAttributes" />
-  </ItemGroup>
 </Project>
 ```
