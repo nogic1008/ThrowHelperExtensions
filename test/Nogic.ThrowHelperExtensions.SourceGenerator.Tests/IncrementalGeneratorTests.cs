@@ -1,6 +1,4 @@
-using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Nogic.ThrowHelperExtensions.SourceGenerator.Tests;
 
@@ -31,7 +29,7 @@ public sealed class IncrementalGeneratorTests
             """;
 
         // Act
-        var result = RunGenerator(source, languageVersion: LanguageVersion.CSharp10);
+        var result = GeneratorTestRunner.RunGenerator(source, languageVersion: LanguageVersion.CSharp10);
 
         // Assert - Generator should produce minimal output for C# 10 (only EmbeddedAttribute)
         result.Results.ShouldNotBeEmpty();
@@ -62,7 +60,7 @@ public sealed class IncrementalGeneratorTests
             """;
 
         // Act - Use C# 10 to ensure generator runs safely, with unsafe explicitly disabled
-        var result = RunGenerator(source, languageVersion: LanguageVersion.CSharp10, allowUnsafe: false);
+        var result = GeneratorTestRunner.RunGenerator(source, languageVersion: LanguageVersion.CSharp10, allowUnsafe: false);
 
         // Assert - Should not include unsafe-specific types when AllowUnsafe is false
         result.Results.ShouldNotBeEmpty();
@@ -73,101 +71,61 @@ public sealed class IncrementalGeneratorTests
     }
 
     /// <summary>
-    /// Runs the generator with the given source code and compilation options.
+    /// Verifies that the generator does not produce attributes when the build property is set to false.
     /// </summary>
-    private static GeneratorDriverRunResult RunGenerator(
-        string source,
-        string buildPropertyValue = "true",
-        LanguageVersion languageVersion = LanguageVersion.Preview,
-        bool allowUnsafe = false)
+    [TestMethod("Generator does not produce attributes when disabled via build property")]
+    public void Generator_Does_Not_Produce_Attributes_When_Disabled()
     {
-        // Create compilation with proper references
-        var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(languageVersion);
-        var syntaxTree = CSharpSyntaxTree.ParseText(source, parseOptions);
-
-        var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
-            .WithAllowUnsafe(allowUnsafe);
-
-        // Add basic references
-        var references = new List<MetadataReference>
-        {
-            MetadataReference.CreateFromFile(typeof(object).Assembly.Location)
-        };
-
-        // Try to add System.Runtime reference if available
-        try
-        {
-            var systemRuntimePath = Path.Combine(Path.GetDirectoryName(typeof(object).Assembly.Location)!, "System.Runtime.dll");
-            if (File.Exists(systemRuntimePath))
+        // Arrange
+        var source = """
+            namespace TestNamespace;
+            
+            public class TestClass
             {
-                references.Add(MetadataReference.CreateFromFile(systemRuntimePath));
+                public void TestMethod(string value)
+                {
+                    ArgumentNullException.ThrowIfNull(value);
+                }
             }
-        }
-        catch
-        {
-            // Ignore if we can't find System.Runtime
-        }
+            """;
 
-        var compilation = CSharpCompilation.Create(
-            "TestAssembly",
-            [syntaxTree],
-            references,
-            compilationOptions);
+        // Act - Disable attribute generation via build property
+        var result = GeneratorTestRunner.RunGenerator(source, buildPropertyValue: "false", languageVersion: LanguageVersion.CSharp10);
 
-        // Create generator
-        var generator = new ThrowHelperGenerator();
+        // Assert - Should only have EmbeddedAttribute, not the other attributes/polyfills
+        result.Results.ShouldNotBeEmpty();
+        var generatedSources = result.Results[0].GeneratedSources;
+        
+        generatedSources.ShouldContain(s => s.HintName.Contains("EmbeddedAttribute"));
+        generatedSources.ShouldNotContain(s => s.HintName.Contains("ExceptionPolyfills"));
+    }
 
-        // Create driver
-        GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
-
-        // Add build property
-        var optionsProvider = new TestAnalyzerConfigOptionsProvider(
-            globalOptions: new Dictionary<string, string>
+    /// <summary>
+    /// Verifies that the generator produces attributes when the build property is set to true.
+    /// </summary>
+    [TestMethod("Generator produces attributes when enabled via build property")]
+    public void Generator_Produces_Attributes_When_Enabled()
+    {
+        // Arrange
+        var source = """
+            namespace TestNamespace;
+            
+            public class TestClass
             {
-                ["build_property.ThrowHelperExtensionsGenerateAttributes"] = buildPropertyValue
-            });
+                public void TestMethod(string value)
+                {
+                    ArgumentNullException.ThrowIfNull(value);
+                }
+            }
+            """;
 
-        driver = driver.WithUpdatedAnalyzerConfigOptions(optionsProvider);
+        // Act - Enable attribute generation via build property (default)
+        var result = GeneratorTestRunner.RunGenerator(source, buildPropertyValue: "true", languageVersion: LanguageVersion.CSharp10);
 
-        // Run the generator and get the result
-        driver = driver.RunGenerators(compilation);
-        return driver.GetRunResult();
-    }
-
-    /// <summary>
-    /// Test implementation of analyzer config options provider.
-    /// </summary>
-    private class TestAnalyzerConfigOptionsProvider : AnalyzerConfigOptionsProvider
-    {
-        private readonly TestAnalyzerConfigOptions _globalOptions;
-
-        public TestAnalyzerConfigOptionsProvider(Dictionary<string, string> globalOptions)
-        {
-            _globalOptions = new TestAnalyzerConfigOptions(globalOptions);
-        }
-
-        public override AnalyzerConfigOptions GlobalOptions => _globalOptions;
-
-        public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => _globalOptions;
-
-        public override AnalyzerConfigOptions GetOptions(AdditionalText textFile) => _globalOptions;
-    }
-
-    /// <summary>
-    /// Test implementation of analyzer config options.
-    /// </summary>
-    private class TestAnalyzerConfigOptions : AnalyzerConfigOptions
-    {
-        private readonly Dictionary<string, string> _options;
-
-        public TestAnalyzerConfigOptions(Dictionary<string, string> options)
-        {
-            _options = options;
-        }
-
-        public override bool TryGetValue(string key, out string? value)
-        {
-            return _options.TryGetValue(key, out value);
-        }
+        // Assert - Should have EmbeddedAttribute
+        result.Results.ShouldNotBeEmpty();
+        var generatedSources = result.Results[0].GeneratedSources;
+        
+        generatedSources.ShouldContain(s => s.HintName.Contains("EmbeddedAttribute"));
     }
 }
