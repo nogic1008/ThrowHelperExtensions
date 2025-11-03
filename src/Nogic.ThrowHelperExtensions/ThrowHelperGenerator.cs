@@ -15,6 +15,18 @@ public class ThrowHelperGenerator : IIncrementalGenerator
     private static readonly Regex EmbeddedResourceNameToFullyQualifiedTypeNameRegex = new(@"^Nogic\.ThrowHelperExtensions\.EmbeddedResources\.(\w+(?:\.\w+)+)\.cs$", RegexOptions.Compiled);
 
     /// <summary>
+    /// Diagnostic descriptor for C# language version warning.
+    /// </summary>
+    private static readonly DiagnosticDescriptor CSharpVersionWarning = new(
+        id: "THEX0001",
+        title: "C# language version must be 14 or higher",
+        messageFormat: "ThrowHelperExtensions requires C# 14 (preview) or higher. Current version is {0}. Please set <LangVersion>preview</LangVersion> in your project file.",
+        category: "Usage",
+        defaultSeverity: DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: "https://github.com/nogic1008/ThrowHelperExtensions#usage");
+
+    /// <summary>
     /// Dictionary of embedded resource names mapped to their fully qualified type names.
     /// </summary>
     public static readonly ImmutableDictionary<string, string> EmbeddedResources = ImmutableDictionary.CreateRange(
@@ -32,6 +44,25 @@ public class ThrowHelperGenerator : IIncrementalGenerator
     {
         // Generate EmbeddedAttribute first (always safe to generate)
         context.RegisterPostInitializationOutput(EmitEmbeddedAttribute);
+
+        // Check C# language version and report warning if needed
+        var languageVersionProvider = context.CompilationProvider.Select(static (compilation, token) =>
+        {
+            token.ThrowIfCancellationRequested();
+            return ((CSharpCompilation)compilation).LanguageVersion;
+        });
+
+        context.RegisterSourceOutput(languageVersionProvider, static (context, languageVersion) =>
+        {
+            if (languageVersion < (LanguageVersion)1400)
+            {
+                var diagnostic = Diagnostic.Create(
+                    CSharpVersionWarning,
+                    Location.None,
+                    languageVersion.ToDisplayString());
+                context.ReportDiagnostic(diagnostic);
+            }
+        });
 
         // Generate ExceptionPolyfills and necessary attributes with options
         var buildOptions = context.AnalyzerConfigOptionsProvider.Select(static (options, token) =>
