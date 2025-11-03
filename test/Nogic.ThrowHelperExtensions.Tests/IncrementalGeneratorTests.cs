@@ -43,6 +43,36 @@ public sealed class IncrementalGeneratorTests
     }
 
     /// <summary>
+    /// Verifies that the generator does not produce unsafe-specific types when AllowUnsafe is false.
+    /// </summary>
+    [TestMethod("Generator does not produce unsafe types when unsafe context is disabled")]
+    public void Generator_Does_Not_Produce_Unsafe_Types_When_Unsafe_Context_Disabled()
+    {
+        // Arrange
+        var source = """
+            namespace TestNamespace;
+            
+            public class TestClass
+            {
+                public void TestMethod(string value)
+                {
+                    ArgumentNullException.ThrowIfNull(value);
+                }
+            }
+            """;
+
+        // Act - Use C# 10 to ensure generator runs safely, with unsafe explicitly disabled
+        var result = RunGenerator(source, languageVersion: LanguageVersion.CSharp10, allowUnsafe: false);
+
+        // Assert - Should not include unsafe-specific types when AllowUnsafe is false
+        result.Results.ShouldNotBeEmpty();
+        var generatedSources = result.Results[0].GeneratedSources;
+        
+        generatedSources.ShouldNotContain(s => s.HintName.Contains("Unsafe"),
+            "Generator should not produce unsafe-specific types when AllowUnsafe is false");
+    }
+
+    /// <summary>
     /// Runs the generator with the given source code and compilation options.
     /// </summary>
     private static GeneratorDriverRunResult RunGenerator(
