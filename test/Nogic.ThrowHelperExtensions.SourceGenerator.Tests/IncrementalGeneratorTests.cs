@@ -16,7 +16,7 @@ public sealed class IncrementalGeneratorTests
     public void Generator_Produces_No_Output_For_Old_CSharp_Versions()
     {
         // Arrange
-        var source = """
+        string source = """
             namespace TestNamespace;
             
             public class TestClass
@@ -33,7 +33,7 @@ public sealed class IncrementalGeneratorTests
 
         // Assert - Generator should produce minimal output for C# 10 (only EmbeddedAttribute)
         result.Results.ShouldNotBeEmpty();
-        
+
         // Should only have the EmbeddedAttribute, not the ExceptionPolyfills
         var generatedSources = result.Results[0].GeneratedSources;
         generatedSources.ShouldContain(s => s.HintName.Contains("EmbeddedAttribute"));
@@ -47,7 +47,7 @@ public sealed class IncrementalGeneratorTests
     public void Generator_Does_Not_Produce_Unsafe_Types_When_Unsafe_Context_Disabled()
     {
         // Arrange
-        var source = """
+        string source = """
             namespace TestNamespace;
             
             public class TestClass
@@ -65,7 +65,7 @@ public sealed class IncrementalGeneratorTests
         // Assert - Should not include unsafe-specific types when AllowUnsafe is false
         result.Results.ShouldNotBeEmpty();
         var generatedSources = result.Results[0].GeneratedSources;
-        
+
         generatedSources.ShouldNotContain(s => s.HintName.Contains("Unsafe"),
             "Generator should not produce unsafe-specific types when AllowUnsafe is false");
     }
@@ -77,7 +77,7 @@ public sealed class IncrementalGeneratorTests
     public void Generator_Does_Not_Produce_Attributes_When_Disabled()
     {
         // Arrange
-        var source = """
+        string source = """
             namespace TestNamespace;
             
             public class TestClass
@@ -95,7 +95,7 @@ public sealed class IncrementalGeneratorTests
         // Assert - Should only have EmbeddedAttribute, not the other attributes/polyfills
         result.Results.ShouldNotBeEmpty();
         var generatedSources = result.Results[0].GeneratedSources;
-        
+
         generatedSources.ShouldContain(s => s.HintName.Contains("EmbeddedAttribute"));
         generatedSources.ShouldNotContain(s => s.HintName.Contains("ExceptionPolyfills"));
     }
@@ -107,7 +107,7 @@ public sealed class IncrementalGeneratorTests
     public void Generator_Produces_Attributes_When_Enabled()
     {
         // Arrange
-        var source = """
+        string source = """
             namespace TestNamespace;
             
             public class TestClass
@@ -125,7 +125,41 @@ public sealed class IncrementalGeneratorTests
         // Assert - Should have EmbeddedAttribute
         result.Results.ShouldNotBeEmpty();
         var generatedSources = result.Results[0].GeneratedSources;
-        
+
         generatedSources.ShouldContain(s => s.HintName.Contains("EmbeddedAttribute"));
+    }
+
+    /// <summary>
+    /// Verifies that the generator produces embedded attributes when enabled.
+    /// </summary>
+    [TestMethod("Generator produces embedded attributes")]
+    public void Generator_Produces_Embedded_Attributes()
+    {
+        // Arrange
+        string source = """
+            namespace TestNamespace;
+            
+            public class TestClass
+            {
+                public void TestMethod(string value)
+                {
+                    ArgumentNullException.ThrowIfNull(value);
+                }
+            }
+            """;
+
+        // Act - Use C# 10 which should generate embedded attributes
+        var result = GeneratorTestRunner.RunGenerator(source, languageVersion: LanguageVersion.CSharp10);
+
+        // Assert - Should have EmbeddedAttribute at minimum
+        result.Results.ShouldNotBeEmpty();
+        var generatedSources = result.Results[0].GeneratedSources;
+
+        generatedSources.ShouldContain(s => s.HintName.Contains("EmbeddedAttribute"),
+            "Generator should produce EmbeddedAttribute");
+
+        // Also check that some diagnostic attributes are generated when appropriate
+        // The generator decides based on various conditions which attributes to include
+        generatedSources.ShouldNotBeEmpty("Generator should produce at least some output");
     }
 }

@@ -1,6 +1,5 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Nogic.ThrowHelperExtensions.SourceGenerator.Tests;
 
@@ -34,7 +33,7 @@ internal static class GeneratorTestRunner
         // Try to add System.Runtime reference if available
         try
         {
-            var systemRuntimePath = Path.Combine(Path.GetDirectoryName(typeof(object).Assembly.Location)!, "System.Runtime.dll");
+            string systemRuntimePath = Path.Combine(Path.GetDirectoryName(typeof(object).Assembly.Location)!, "System.Runtime.dll");
             if (File.Exists(systemRuntimePath))
             {
                 references.Add(MetadataReference.CreateFromFile(systemRuntimePath));
@@ -69,42 +68,5 @@ internal static class GeneratorTestRunner
         // Run the generator and get the result
         driver = driver.RunGenerators(compilation);
         return driver.GetRunResult();
-    }
-}
-
-/// <summary>
-/// Test implementation of analyzer config options provider.
-/// </summary>
-internal class TestAnalyzerConfigOptionsProvider : AnalyzerConfigOptionsProvider
-{
-    private readonly TestAnalyzerConfigOptions _globalOptions;
-
-    public TestAnalyzerConfigOptionsProvider(Dictionary<string, string> globalOptions)
-    {
-        _globalOptions = new TestAnalyzerConfigOptions(globalOptions);
-    }
-
-    public override AnalyzerConfigOptions GlobalOptions => _globalOptions;
-
-    public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => _globalOptions;
-
-    public override AnalyzerConfigOptions GetOptions(AdditionalText textFile) => _globalOptions;
-}
-
-/// <summary>
-/// Test implementation of analyzer config options.
-/// </summary>
-internal class TestAnalyzerConfigOptions : AnalyzerConfigOptions
-{
-    private readonly Dictionary<string, string> _options;
-
-    public TestAnalyzerConfigOptions(Dictionary<string, string> options)
-    {
-        _options = options;
-    }
-
-    public override bool TryGetValue(string key, out string? value)
-    {
-        return _options.TryGetValue(key, out value);
     }
 }
