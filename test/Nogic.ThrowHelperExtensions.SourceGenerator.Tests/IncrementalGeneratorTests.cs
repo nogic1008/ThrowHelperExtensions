@@ -2,7 +2,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 
-namespace Nogic.ThrowHelperExtensions.Tests;
+namespace Nogic.ThrowHelperExtensions.SourceGenerator.Tests;
 
 /// <summary>
 /// Tests to verify that the incremental source generator works correctly.
