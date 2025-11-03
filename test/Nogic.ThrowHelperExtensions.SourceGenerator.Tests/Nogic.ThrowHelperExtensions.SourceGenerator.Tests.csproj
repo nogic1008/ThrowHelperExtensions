@@ -1,7 +1,6 @@
 <Project Sdk="MSTest.Sdk/3.11.0">
   <PropertyGroup>
-    <TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
-    <NoWarn Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0'">$(NoWarn);NETSDK1138</NoWarn>
+    <TargetFramework>net9.0</TargetFramework>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
