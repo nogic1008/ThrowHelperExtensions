@@ -2,6 +2,15 @@
   "version": 2,
   "dependencies": {
     ".NETFramework,Version=v4.8": {
+      "Microsoft.CodeAnalysis.CSharp": {
+        "type": "Direct",
+        "requested": "[4.3.0, )",
+        "resolved": "4.3.0",
+        "contentHash": "0PU4a2h7L6N9SlF/oNHwj2A/+n0LK/7n6PEGvXyIZq8hc7r/TztB+47mhVLvapT6bWSV7nMT78cNxbQuC6tk6g==",
+        "dependencies": {
+          "Microsoft.CodeAnalysis.Common": "[4.3.0]"
+        }
+      },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
         "requested": "[17.13.0, )",
@@ -342,18 +351,18 @@
         "dependencies": {
           "Microsoft.CodeAnalysis.CSharp": "[4.3.0, )"
         }
-      },
+      }
+    },
+    "net6.0": {
       "Microsoft.CodeAnalysis.CSharp": {
-        "type": "CentralTransitive",
+        "type": "Direct",
         "requested": "[4.3.0, )",
         "resolved": "4.3.0",
         "contentHash": "0PU4a2h7L6N9SlF/oNHwj2A/+n0LK/7n6PEGvXyIZq8hc7r/TztB+47mhVLvapT6bWSV7nMT78cNxbQuC6tk6g==",
         "dependencies": {
           "Microsoft.CodeAnalysis.Common": "[4.3.0]"
         }
-      }
-    },
-    "net6.0": {
+      },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
         "requested": "[17.13.0, )",
@@ -635,18 +644,18 @@
         "dependencies": {
           "Microsoft.CodeAnalysis.CSharp": "[4.3.0, )"
         }
-      },
+      }
+    },
+    "net7.0": {
       "Microsoft.CodeAnalysis.CSharp": {
-        "type": "CentralTransitive",
+        "type": "Direct",
         "requested": "[4.3.0, )",
         "resolved": "4.3.0",
         "contentHash": "0PU4a2h7L6N9SlF/oNHwj2A/+n0LK/7n6PEGvXyIZq8hc7r/TztB+47mhVLvapT6bWSV7nMT78cNxbQuC6tk6g==",
         "dependencies": {
           "Microsoft.CodeAnalysis.Common": "[4.3.0]"
         }
-      }
-    },
-    "net7.0": {
+      },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
         "requested": "[17.13.0, )",
@@ -925,18 +934,18 @@
         "dependencies": {
           "Microsoft.CodeAnalysis.CSharp": "[4.3.0, )"
         }
-      },
+      }
+    },
+    "net8.0": {
       "Microsoft.CodeAnalysis.CSharp": {
-        "type": "CentralTransitive",
+        "type": "Direct",
         "requested": "[4.3.0, )",
         "resolved": "4.3.0",
         "contentHash": "0PU4a2h7L6N9SlF/oNHwj2A/+n0LK/7n6PEGvXyIZq8hc7r/TztB+47mhVLvapT6bWSV7nMT78cNxbQuC6tk6g==",
         "dependencies": {
           "Microsoft.CodeAnalysis.Common": "[4.3.0]"
         }
-      }
-    },
-    "net8.0": {
+      },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
         "requested": "[17.13.0, )",
@@ -1207,19 +1216,19 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.CodeAnalysis.CSharp": "[4.3.0, )"
-        }
-      },
-      "Microsoft.CodeAnalysis.CSharp": {
-        "type": "CentralTransitive",
-        "requested": "[4.3.0, )",
-        "resolved": "4.3.0",
-        "contentHash": "0PU4a2h7L6N9SlF/oNHwj2A/+n0LK/7n6PEGvXyIZq8hc7r/TztB+47mhVLvapT6bWSV7nMT78cNxbQuC6tk6g==",
-        "dependencies": {
-          "Microsoft.CodeAnalysis.Common": "[4.3.0]"
         }
       }
     },
     "net9.0": {
+      "Microsoft.CodeAnalysis.CSharp": {
+        "type": "Direct",
+        "requested": "[4.3.0, )",
+        "resolved": "4.3.0",
+        "contentHash": "0PU4a2h7L6N9SlF/oNHwj2A/+n0LK/7n6PEGvXyIZq8hc7r/TztB+47mhVLvapT6bWSV7nMT78cNxbQuC6tk6g==",
+        "dependencies": {
+          "Microsoft.CodeAnalysis.Common": "[4.3.0]"
+        }
+      },
       "Microsoft.NET.Test.Sdk": {
         "type": "Direct",
         "requested": "[17.13.0, )",
@@ -1490,15 +1499,6 @@
         "type": "Project",
         "dependencies": {
           "Microsoft.CodeAnalysis.CSharp": "[4.3.0, )"
-        }
-      },
-      "Microsoft.CodeAnalysis.CSharp": {
-        "type": "CentralTransitive",
-        "requested": "[4.3.0, )",
-        "resolved": "4.3.0",
-        "contentHash": "0PU4a2h7L6N9SlF/oNHwj2A/+n0LK/7n6PEGvXyIZq8hc7r/TztB+47mhVLvapT6bWSV7nMT78cNxbQuC6tk6g==",
-        "dependencies": {
-          "Microsoft.CodeAnalysis.Common": "[4.3.0]"
         }
       }
     }
