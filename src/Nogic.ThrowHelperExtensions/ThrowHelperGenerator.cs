@@ -12,6 +12,7 @@ namespace Nogic.ThrowHelperExtensions;
 public class ThrowHelperGenerator : IIncrementalGenerator
 {
     private const string EmbeddedAttribute = "Microsoft.CodeAnalysis.EmbeddedAttribute";
+    private const LanguageVersion MinimumRequiredLanguageVersion = (LanguageVersion)1400; // C# 14.0
     private static readonly Regex EmbeddedResourceNameToFullyQualifiedTypeNameRegex = new(@"^Nogic\.ThrowHelperExtensions\.EmbeddedResources\.(\w+(?:\.\w+)+)\.cs$", RegexOptions.Compiled);
 
     /// <summary>
@@ -54,7 +55,7 @@ public class ThrowHelperGenerator : IIncrementalGenerator
 
         context.RegisterSourceOutput(languageVersionProvider, static (context, languageVersion) =>
         {
-            if (languageVersion < (LanguageVersion)1400)
+            if (languageVersion < MinimumRequiredLanguageVersion)
             {
                 var diagnostic = Diagnostic.Create(
                     CSharpVersionWarning,
@@ -94,7 +95,7 @@ public class ThrowHelperGenerator : IIncrementalGenerator
     private static ImmutableArray<string> GetNeedGenerateTypes((Compilation compilation, bool generateAttributes) config, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
-        if (((CSharpCompilation)config.compilation).LanguageVersion < (LanguageVersion)1400) // ExceptionPolyfills uses C# 14.0 features
+        if (((CSharpCompilation)config.compilation).LanguageVersion < MinimumRequiredLanguageVersion) // ExceptionPolyfills uses C# 14.0 features
             return ImmutableArray<string>.Empty;
 
         var builder = ImmutableArray.CreateBuilder<string>();
