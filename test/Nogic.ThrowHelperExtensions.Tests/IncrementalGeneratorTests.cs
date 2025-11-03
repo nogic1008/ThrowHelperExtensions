@@ -135,9 +135,9 @@ public sealed class IncrementalGeneratorTests
             _options = options;
         }
 
-        public override bool TryGetValue(string key, out string value)
+        public override bool TryGetValue(string key, out string? value)
         {
-            return _options.TryGetValue(key, out value!);
+            return _options.TryGetValue(key, out value);
         }
     }
 }
