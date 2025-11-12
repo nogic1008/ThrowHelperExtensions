@@ -5,11 +5,11 @@ namespace Nogic.ThrowHelperExtensions.SourceGenerator.Tests;
 /// <summary>
 /// Test implementation of analyzer config options.
 /// </summary>
-internal class TestAnalyzerConfigOptions : AnalyzerConfigOptions
+internal class TestAnalyzerConfigOptions(Dictionary<string, string> options)
+    : AnalyzerConfigOptions
 {
-    private readonly Dictionary<string, string> options;
-
-    public TestAnalyzerConfigOptions(Dictionary<string, string> options) => this.options = options;
-
-    public override bool TryGetValue(string key, out string? value) => this.options.TryGetValue(key, out value);
+#nullable disable warnings
+    public override bool TryGetValue(string key, out string? value)
+#nullable restore warnings
+        => options.TryGetValue(key, out value);
 }

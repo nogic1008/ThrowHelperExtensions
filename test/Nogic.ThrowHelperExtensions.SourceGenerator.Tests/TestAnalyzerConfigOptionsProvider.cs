@@ -6,15 +6,14 @@ namespace Nogic.ThrowHelperExtensions.SourceGenerator.Tests;
 /// <summary>
 /// Test implementation of analyzer config options provider.
 /// </summary>
-internal class TestAnalyzerConfigOptionsProvider : AnalyzerConfigOptionsProvider
+internal class TestAnalyzerConfigOptionsProvider(Dictionary<string, string> globalOptions)
+    : AnalyzerConfigOptionsProvider
 {
-    private readonly TestAnalyzerConfigOptions globalOptions;
-
-    public TestAnalyzerConfigOptionsProvider(Dictionary<string, string> globalOptions) => this.globalOptions = new TestAnalyzerConfigOptions(globalOptions);
-
+    private readonly TestAnalyzerConfigOptions globalOptions = new(globalOptions);
+    /// <inheritdoc />
     public override AnalyzerConfigOptions GlobalOptions => this.globalOptions;
-
+    /// <inheritdoc />
     public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => this.globalOptions;
-
+    /// <inheritdoc />
     public override AnalyzerConfigOptions GetOptions(AdditionalText textFile) => this.globalOptions;
 }

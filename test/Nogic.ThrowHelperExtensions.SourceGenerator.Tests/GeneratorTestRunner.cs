@@ -3,70 +3,71 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace Nogic.ThrowHelperExtensions.SourceGenerator.Tests;
 
-/// <summary>
-/// Helper methods for running the source generator in tests.
-/// </summary>
+/// <summary>Executes generator tests.</summary>
 internal static class GeneratorTestRunner
 {
-    /// <summary>
-    /// Runs the generator with the given source code and compilation options.
-    /// </summary>
-    public static GeneratorDriverRunResult RunGenerator(
-        string source,
-        string buildPropertyValue = "true",
-        LanguageVersion languageVersion = LanguageVersion.Preview,
-        bool allowUnsafe = false)
-    {
-        // Create compilation with proper references
-        var parseOptions = CSharpParseOptions.Default.WithLanguageVersion(languageVersion);
-        var syntaxTree = CSharpSyntaxTree.ParseText(source, parseOptions);
+    private static readonly Compilation BaseCompilation;
 
-        var compilationOptions = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
-            .WithAllowUnsafe(allowUnsafe);
+    static GeneratorTestRunner()
+    {
+        var references = AppDomain.CurrentDomain.GetAssemblies()
+            .Where(x => !x.IsDynamic && !string.IsNullOrWhiteSpace(x.Location))
+            .Select(x => MetadataReference.CreateFromFile(x.Location))
+            .ToList();
 
         // Add basic references
-        var references = new List<MetadataReference>
-        {
-            MetadataReference.CreateFromFile(typeof(object).Assembly.Location)
-        };
+        references.Add(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
 
         // Try to add System.Runtime reference if available
         try
         {
             string systemRuntimePath = Path.Combine(Path.GetDirectoryName(typeof(object).Assembly.Location)!, "System.Runtime.dll");
             if (File.Exists(systemRuntimePath))
-            {
                 references.Add(MetadataReference.CreateFromFile(systemRuntimePath));
-            }
         }
         catch
         {
             // Ignore if we can't find System.Runtime
         }
 
-        var compilation = CSharpCompilation.Create(
-            "TestAssembly",
-            [syntaxTree],
-            references,
-            compilationOptions);
+        var compilation = CSharpCompilation.Create("generator_test",
+            references: references,
+            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
 
-        // Create generator
-        var generator = new ThrowHelperGenerator();
+        BaseCompilation = compilation;
+    }
 
-        // Create driver
-        GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
+    public static GeneratorDriverRunResult RunGenerator(
+        string source,
+        LanguageVersion languageVersion = LanguageVersion.Preview,
+        string generateAttributes = "true",
+        bool allowUnsafe = false)
+    {
+        var parseOptions = new CSharpParseOptions(languageVersion);
+
+        var driver = CSharpGeneratorDriver.Create(new ThrowHelperGenerator())
+            .WithUpdatedParseOptions(parseOptions);
+
+        var compilationOptions = allowUnsafe
+            ? new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, allowUnsafe: allowUnsafe)
+            : BaseCompilation.Options;
+
+        var inputCompilation = BaseCompilation
+            .WithOptions(compilationOptions)
+            .AddSyntaxTrees(CSharpSyntaxTree.ParseText(source, parseOptions));
 
         // Add build property
         var optionsProvider = new TestAnalyzerConfigOptionsProvider(
             globalOptions: new Dictionary<string, string>
             {
-                ["build_property.ThrowHelperExtensionsGenerateAttributes"] = buildPropertyValue
+                ["build_property.ThrowHelperExtensionsGenerateAttributes"] = generateAttributes
             });
 
         driver = driver.WithUpdatedAnalyzerConfigOptions(optionsProvider);
 
         // Run the generator and get the result
-        driver = driver.RunGenerators(compilation);
+        driver = driver.RunGenerators(inputCompilation);
+
         return driver.GetRunResult();
     }
 }
