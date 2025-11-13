@@ -214,7 +214,8 @@ public class ThrowHelperGenerator : IIncrementalGenerator
         if (IsTypeAlreadyExists(compilation, "System.ExceptionPolyfills", context.CancellationToken))
             return;
 
-        var targetFramework = GetTargetFramework(compilation);
+        var parseOptions = compilation.SyntaxTrees.FirstOrDefault()?.Options as CSharpParseOptions;
+        var targetFramework = GetTargetFrameworkFromSymbols(parseOptions?.PreprocessorSymbolNames ?? []);
         bool allowUnsafe = ((CSharpCompilation)compilation).Options.AllowUnsafe;
         string source = ExceptionPolyfillsBuilder.Generate(targetFramework, allowUnsafe);
         var sourceText = SourceText.From(source, Encoding.UTF8);
@@ -224,16 +225,10 @@ public class ThrowHelperGenerator : IIncrementalGenerator
     /// <summary>
     /// Detects the target framework version from preprocessor symbols.
     /// </summary>
-    /// <param name="compilation">The current compilation context.</param>
+    /// <param name="symbols">The preprocessor symbols.</param>
     /// <returns>The target framework version.</returns>
-    private static TargetFramework GetTargetFramework(Compilation compilation)
+    internal static TargetFramework GetTargetFrameworkFromSymbols(IEnumerable<string> symbols)
     {
-        var parseOptions = compilation.SyntaxTrees.FirstOrDefault()?.Options as CSharpParseOptions;
-        if (parseOptions == null)
-            return TargetFramework.Net6;
-
-        var symbols = parseOptions.PreprocessorSymbolNames;
-
         if (symbols.Contains("NET8_0_OR_GREATER"))
             return TargetFramework.Net8OrGreater;
         if (symbols.Contains("NET7_0_OR_GREATER"))

@@ -23,7 +23,6 @@ public sealed class IncrementalGeneratorTests
     /// Determines if a type should be generated based on whether it's built into the framework.
     /// </summary>
     /// <param name="typeFullName">The full name of the type to check (including assembly name).</param>
-    /// <returns>True if the type is not built into the framework and should be generated.</returns>
     private static void ShouldGeneratedOrBuiltIn(IEnumerable<GeneratedSourceResult> generatedSources, string typeFullName)
     {
         if (Type.GetType($"{typeFullName}, System.Runtime") is null)
@@ -48,6 +47,11 @@ public sealed class IncrementalGeneratorTests
         result.Results.ShouldNotBeEmpty();
         var generatedSources = result.Results[0].GeneratedSources;
 
+        // Assert - Should report THEX0001 warning diagnostic
+        result.Diagnostics.ShouldNotBeEmpty();
+        result.Diagnostics.ShouldContain(d => d.Id == "THEX0001");
+        result.Diagnostics.ShouldContain(d => d.Severity == DiagnosticSeverity.Warning);
+
         // For old language versions (< C# 14), only EmbeddedAttribute should be generated
         generatedSources.ShouldContain(s => s.HintName.Contains("EmbeddedAttribute"));
         generatedSources.ShouldNotContain(s => s.HintName.Contains("CallerArgumentExpressionAttribute"));
@@ -65,6 +69,7 @@ public sealed class IncrementalGeneratorTests
 
         // Assert
         result.Results.ShouldNotBeEmpty();
+        result.Diagnostics.ShouldNotContain(d => d.Id == "THEX0001");
         var generatedSources = result.Results[0].GeneratedSources;
         generatedSources.ShouldContain(s => s.HintName.Contains("EmbeddedAttribute"));
         generatedSources.ShouldContain(s => s.HintName.Contains("ExceptionPolyfills"));
@@ -88,6 +93,7 @@ public sealed class IncrementalGeneratorTests
 
         // Assert
         result.Results.ShouldNotBeEmpty();
+        result.Diagnostics.ShouldNotContain(d => d.Id == "THEX0001");
         var generatedSources = result.Results[0].GeneratedSources;
         generatedSources.ShouldContain(s => s.HintName.Contains("EmbeddedAttribute"));
         generatedSources.ShouldContain(s => s.HintName.Contains("ExceptionPolyfills"));
@@ -112,6 +118,7 @@ public sealed class IncrementalGeneratorTests
 
         // Assert
         result.Results.ShouldNotBeEmpty();
+        result.Diagnostics.ShouldNotContain(d => d.Id == "THEX0001");
         var generatedSources = result.Results[0].GeneratedSources;
 
         // When attributes are disabled, only EmbeddedAttribute and ExceptionPolyfills should be generated
@@ -123,5 +130,25 @@ public sealed class IncrementalGeneratorTests
         generatedSources.ShouldNotContain(s => s.HintName.Contains("CallerArgumentExpressionAttribute"));
         generatedSources.ShouldNotContain(s => s.HintName.Contains("NotNullAttribute"));
         generatedSources.ShouldNotContain(s => s.HintName.Contains("DoesNotReturnAttribute"));
+    }
+
+    /// <summary>
+    /// Verifies that GetTargetFrameworkFromSymbols correctly detects framework versions.
+    /// </summary>
+    [TestMethod("GetTargetFrameworkFromSymbols detects framework version from preprocessor symbols")]
+    [DataRow((string[])[], TargetFramework.PreNet6)]
+    [DataRow((string[])["NET5_0"], TargetFramework.PreNet6)]
+    [DataRow((string[])["NETSTANDARD2_1"], TargetFramework.PreNet6)]
+    [DataRow((string[])["NET6_0", "NET6_0_OR_GREATER"], TargetFramework.Net6)]
+    [DataRow((string[])["NET7_0", "NET6_0_OR_GREATER", "NET7_0_OR_GREATER"], TargetFramework.Net7)]
+    [DataRow((string[])["NET8_0", "NET6_0_OR_GREATER", "NET7_0_OR_GREATER", "NET8_0_OR_GREATER"], TargetFramework.Net8OrGreater)]
+    [DataRow((string[])["NET9_0", "NET6_0_OR_GREATER", "NET7_0_OR_GREATER", "NET8_0_OR_GREATER", "NET9_0_OR_GREATER"], TargetFramework.Net8OrGreater)]
+    public void GetTargetFrameworkFromSymbols_Detects_Framework_Version(string[] symbols, TargetFramework expected)
+    {
+        // Arrange - Act
+        var result = ThrowHelperGenerator.GetTargetFrameworkFromSymbols(symbols);
+
+        // Assert
+        result.ShouldBe(expected);
     }
 }
