@@ -322,8 +322,8 @@ public sealed class ExceptionPolyfillsTest
         VerifyPolyfillMethod(typeof(ArgumentNullException), "ThrowIfNull", polyfillMethods, typeof(void*));
         VerifyPolyfillMethod(typeof(ArgumentException), "ThrowIfNullOrEmpty", polyfillMethods, typeof(string));
         VerifyPolyfillMethod(typeof(ArgumentException), "ThrowIfNullOrWhiteSpace", polyfillMethods, typeof(string));
-        VerifyPolyfillMethod(typeof(ArgumentOutOfRangeException), "ThrowIfEqual", polyfillMethods, typeof(IEquatable<>), typeof(IEquatable<>));
-        VerifyPolyfillMethod(typeof(ArgumentOutOfRangeException), "ThrowIfNotEqual", polyfillMethods, typeof(IEquatable<>), typeof(IEquatable<>));
+        VerifyPolyfillMethod(typeof(ArgumentOutOfRangeException), "ThrowIfEqual", polyfillMethods, null, null);
+        VerifyPolyfillMethod(typeof(ArgumentOutOfRangeException), "ThrowIfNotEqual", polyfillMethods, null, null);
         VerifyPolyfillMethod(typeof(ArgumentOutOfRangeException), "ThrowIfGreaterThan", polyfillMethods, typeof(IComparable<>), typeof(IComparable<>));
         VerifyPolyfillMethod(typeof(ArgumentOutOfRangeException), "ThrowIfGreaterThanOrEqual", polyfillMethods, typeof(IComparable<>), typeof(IComparable<>));
         VerifyPolyfillMethod(typeof(ArgumentOutOfRangeException), "ThrowIfLessThan", polyfillMethods, typeof(IComparable<>), typeof(IComparable<>));
@@ -388,8 +388,8 @@ public sealed class ExceptionPolyfillsTest
     /// <param name="frameworkType">The framework exception type to check</param>
     /// <param name="methodName">The method name to verify</param>
     /// <param name="polyfillMethods">All available polyfill methods</param>
-    /// <param name="expectedOverloadTypes">Expected parameter types for specific overloads to verify</param>
-    private static void VerifyPolyfillMethod(Type frameworkType, string methodName, MethodInfo[] polyfillMethods, params Type[] expectedOverloadTypes)
+    /// <param name="expectedOverloadTypes">Expected parameter types for specific overloads to verify. Use null to represent generic T parameter.</param>
+    private static void VerifyPolyfillMethod(Type frameworkType, string methodName, MethodInfo[] polyfillMethods, params Type?[] expectedOverloadTypes)
     {
         bool hasBuiltInMethod = HasFrameworkMethod(frameworkType, methodName, expectedOverloadTypes);
 
@@ -458,11 +458,17 @@ public sealed class ExceptionPolyfillsTest
     /// Checks if a parameter type matches the expected type, handling generic constraints
     /// </summary>
     /// <param name="actualType">The actual parameter type</param>
-    /// <param name="expectedType">The expected parameter type</param>
+    /// <param name="expectedType">The expected parameter type. Use null to represent generic T parameter.</param>
     /// <param name="method">The method containing the parameter</param>
     /// <returns>True if the types match considering generic constraints</returns>
-    private static bool DoesParameterTypeMatch(Type actualType, Type expectedType, MethodInfo method)
+    private static bool DoesParameterTypeMatch(Type actualType, Type? expectedType, MethodInfo method)
     {
+        // If expectedType is null, it represents a generic T parameter
+        if (expectedType is null)
+        {
+            return method.IsGenericMethodDefinition && actualType.IsGenericParameter;
+        }
+
         // Direct type match
         if (actualType == expectedType)
             return true;
