@@ -21,7 +21,7 @@ public class ThrowHelperGenerator : IIncrementalGenerator
     private static readonly DiagnosticDescriptor CSharpVersionWarning = new(
         id: "THEX0001",
         title: "C# language version must be 14 or higher",
-        messageFormat: "ThrowHelperExtensions requires C# 14 or higher. Current version is {0}. Please set <LangVersion>preview</LangVersion> in your project file.",
+        messageFormat: "ThrowHelperExtensions requires C# 14 or higher. Current version is {0}. Please set <LangVersion>14</LangVersion> in your project file.",
         category: "Usage",
         defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
