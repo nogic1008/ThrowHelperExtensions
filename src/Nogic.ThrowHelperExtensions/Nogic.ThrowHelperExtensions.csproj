@@ -16,7 +16,9 @@
     <EmbeddedResource Include="EmbeddedResources/**/*.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
+    <Compile Remove="EmbeddedResources/**/*.cs" />
     <None Include="../../README.md" Pack="true" PackagePath="/" />
+    <InternalsVisibleTo Include="Nogic.ThrowHelperExtensions.SourceGenerator.Tests" />
   </ItemGroup>
 
   <ItemGroup>
