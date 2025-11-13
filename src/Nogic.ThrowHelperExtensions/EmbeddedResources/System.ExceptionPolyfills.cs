@@ -126,7 +126,6 @@ internal static partial class ExceptionPolyfills
         /// <param name="paramName">The name of the parameter with which <paramref name="value"/> corresponds.</param>
         /// <exception cref="global::System.ArgumentOutOfRangeException"><paramref name="value"/> is equal to <paramref name="other"/>.</exception>
         public static void ThrowIfEqual<T>(T value, T other, [global::System.Runtime.CompilerServices.CallerArgumentExpression(nameof(value))] string? paramName = null)
-            where T : global::System.IEquatable<T>?
         {
             if (global::System.Collections.Generic.EqualityComparer<T>.Default.Equals(value, other))
                 ThrowArgumentOutOfRangeException(value, paramName, $"{paramName} ('{value}') must not be equal to '{other}'.");
@@ -138,7 +137,6 @@ internal static partial class ExceptionPolyfills
         /// <param name="paramName">The name of the parameter with which <paramref name="value"/> corresponds.</param>
         /// <exception cref="global::System.ArgumentOutOfRangeException"><paramref name="value"/> is not equal to <paramref name="other"/>.</exception>
         public static void ThrowIfNotEqual<T>(T value, T other, [global::System.Runtime.CompilerServices.CallerArgumentExpression(nameof(value))] string? paramName = null)
-            where T : global::System.IEquatable<T>?
         {
             if (!global::System.Collections.Generic.EqualityComparer<T>.Default.Equals(value, other))
                 ThrowArgumentOutOfRangeException(value, paramName, $"{paramName} ('{value}') must be equal to '{other}'.");

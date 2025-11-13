@@ -10,7 +10,7 @@ Use ThrowHelper methods (ex. `ArgumentException.ThrowIfNull`) on your elderly .N
 
 ## Usage
 
-### 1. Set `LangVersion` to C# 14 (preview)
+### 1. Set `LangVersion` to C# 14
 
 This package uses [Extension members](https://learn.microsoft.com/dotnet/csharp/whats-new/csharp-14#extension-members) feature on C# 14.
 
@@ -18,7 +18,7 @@ Please Add below on your `.csproj` or `Directory.Build.props`.
 
 ```xml
 <PropertyGroup>
-  <LangVersion>preview</LangVersion>
+  <LangVersion>14</LangVersion>
 </PropertyGroup>
 ```
 
@@ -57,14 +57,14 @@ public class Sample
   - Set `AllowUnsafeBlocks` to `true` in your project file to use this overload.
 - [`ObjectDisposedException.ThrowIf(bool, object)`](https://learn.microsoft.com/dotnet/api/system.objectdisposedexception.throwif?view=net-7.0#system-objectdisposedexception-throwif(system-boolean-system-object))
 - [`ObjectDisposedException.ThrowIf(bool, Type)`](https://learn.microsoft.com/dotnet/api/system.objectdisposedexception.throwif?view=net-7.0#system-objectdisposedexception-throwif(system-boolean-system-type))
-- [`ArgumentOutOfRangeException.ThrowIfEqual<T>(T, T, string?) where T : IEquatable<T>?`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifequal?view=net-8.0)
+- [`ArgumentOutOfRangeException.ThrowIfEqual<T>(T, T, string?)`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifequal?view=net-10.0)
 - [`ArgumentOutOfRangeException.ThrowIfGreaterThan<T>(T, T, string?) where T : IComparable<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifgreaterthan?view=net-8.0)
 - [`ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual<T>(T, T, string?) where T : IComparable<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifgreaterthanorequal?view=net-8.0)
 - [`ArgumentOutOfRangeException.ThrowIfLessThan<T>(T, T, string?) where T : IComparable<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwiflessthan?view=net-8.0)
 - [`ArgumentOutOfRangeException.ThrowIfLessThanOrEqual<T>(T, T, string?) where T : IComparable<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwiflessthanorequal?view=net-8.0)
 - [`ArgumentOutOfRangeException.ThrowIfNegative<T>(T, string?) where T : INumberBase<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifnegative?view=net-8.0) [^1]
 - [`ArgumentOutOfRangeException.ThrowIfNegativeOrZero<T>(T, string?) where T : INumberBase<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifnegativeorzero?view=net-8.0) [^1]
-- [`ArgumentOutOfRangeException.ThrowIfNotEqual<T>(T, T, string?) where T : IEquatable<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifnotequal?view=net-8.0)
+- [`ArgumentOutOfRangeException.ThrowIfNotEqual<T>(T, T, string?)`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifnotequal?view=net-10.0)
 - [`ArgumentOutOfRangeException.ThrowIfZero<T>(T, string?) where T : INumberBase<T>`](https://learn.microsoft.com/dotnet/api/system.argumentoutofrangeexception.throwifzero?view=net-8.0) [^1]
 
 [^1]: [`INumberBase<T>`](https://learn.microsoft.com/dotnet/api/system.numerics.inumberbase-1?view=net-7.0) is not available in .NET 6.0 or below (including .NET Standard 2.0).
@@ -73,6 +73,9 @@ public class Sample
 ### Limitations
 
 - Except for `ArgumentNullException.ThrowIfNull`, exception messages are not localized.
+- Unlike .NET 8.0 and 9.0, these methods do not have `IEquatable<T>` constraint on type parameter `T`. (based on .NET 10.0+ source code)
+  - `ArgumentOutOfRangeException.ThrowIfEqual<T>(T, T, string?)`
+  - `ArgumentOutOfRangeException.ThrowIfNotEqual<T>(T, T, string?)`
 - The generated class `System.ExceptionPolyfills` is `internal`.
 
 ## Options
