@@ -10,7 +10,7 @@ Use ThrowHelper methods (ex. `ArgumentException.ThrowIfNull`) on your elderly .N
 
 ## Usage
 
-### 1. Set `LangVersion` to C# 14 (preview)
+### 1. Set `LangVersion` to C# 14
 
 This package uses [Extension members](https://learn.microsoft.com/dotnet/csharp/whats-new/csharp-14#extension-members) feature on C# 14.
 
@@ -18,7 +18,7 @@ Please Add below on your `.csproj` or `Directory.Build.props`.
 
 ```xml
 <PropertyGroup>
-  <LangVersion>preview</LangVersion>
+  <LangVersion>14</LangVersion>
 </PropertyGroup>
 ```
 
