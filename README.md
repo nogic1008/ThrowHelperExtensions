@@ -1,6 +1,7 @@
 # ThrowHelperExtensions
 
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/nogic1008/ThrowHelperExtensions)](https://github.com/nogic1008/ThrowHelperExtensions/releases)
+[![NuGet (stable version)](https://img.shields.io/nuget/v/Nogic.ThrowHelperExtensions?logo=nuget)](https://www.nuget.org/packages/Nogic.ThrowHelperExtensions/)
+[![GitHub releases (including pre-releases)](https://img.shields.io/github/v/release/nogic1008/ThrowHelperExtensions?include_prereleases&sort=semver)](https://github.com/nogic1008/ThrowHelperExtensions/releases)
 [![.NET CI](https://github.com/nogic1008/ThrowHelperExtensions/actions/workflows/dotnet-ci.yml/badge.svg)](https://github.com/nogic1008/ThrowHelperExtensions/actions/workflows/dotnet-ci.yml)
 [![codecov](https://codecov.io/gh/nogic1008/ThrowHelperExtensions/graph/badge.svg?token=r9tFgjErCH)](https://codecov.io/gh/nogic1008/ThrowHelperExtensions)
 [![CodeFactor](https://www.codefactor.io/repository/github/nogic1008/ThrowHelperExtensions/badge)](https://www.codefactor.io/repository/github/nogic1008/ThrowHelperExtensions)

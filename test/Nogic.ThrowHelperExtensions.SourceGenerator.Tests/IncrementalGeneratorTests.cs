@@ -1,9 +1,10 @@
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
 namespace Nogic.ThrowHelperExtensions.SourceGenerator.Tests;
 
 /// <summary>
-/// Tests to verify that the incremental source generator works correctly.
+/// Tests for <see cref="ThrowHelperGenerator"/>
 /// </summary>
 [TestClass]
 public sealed class IncrementalGeneratorTests
@@ -19,32 +20,17 @@ public sealed class IncrementalGeneratorTests
     """;
 
     /// <summary>
-    /// Framework detection helper that determines what attributes should be generated
-    /// based on the target framework being compiled against.
+    /// Determines if a type should be generated based on whether it's built into the framework.
     /// </summary>
-    private static class FrameworkCapabilities
+    /// <param name="typeFullName">The full name of the type to check (including assembly name).</param>
+    private static void ShouldGeneratedOrBuiltIn(IEnumerable<GeneratedSourceResult> generatedSources, string typeFullName)
     {
-        private static readonly bool IsNetFramework =
-            System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription.StartsWith(".NET Framework");
-
-        /// <summary>
-        /// Determines if the current test environment expects CallerArgumentExpressionAttribute to be generated.
-        /// .NET Framework and older .NET versions need this attribute generated.
-        /// </summary>
-        public static bool ShouldGenerateCallerArgumentExpressionAttribute() => IsNetFramework;
-
-        /// <summary>
-        /// Determines if nullability attributes should be generated.
-        /// .NET Framework needs these attributes generated.
-        /// </summary>
-        public static bool ShouldGenerateNullabilityAttributes() => IsNetFramework;
-
-        /// <summary>
-        /// Determines if DoesNotReturn attributes should be generated.
-        /// .NET Framework needs these attributes generated.
-        /// </summary>
-        public static bool ShouldGenerateDoesNotReturnAttributes() => IsNetFramework;
+        if (Type.GetType($"{typeFullName}, System.Runtime") is null)
+            generatedSources.ShouldContain(s => s.HintName.Contains(typeFullName));
+        else
+            generatedSources.ShouldNotContain(s => s.HintName.Contains(typeFullName));
     }
+
     /// <summary>
     /// Verifies that the generator produces minimal output for old C# versions.
     /// </summary>
@@ -60,6 +46,11 @@ public sealed class IncrementalGeneratorTests
         // Assert - Generator should produce minimal output for older C# versions (only EmbeddedAttribute)
         result.Results.ShouldNotBeEmpty();
         var generatedSources = result.Results[0].GeneratedSources;
+
+        // Assert - Should report THEX0001 warning diagnostic
+        result.Diagnostics.ShouldNotBeEmpty();
+        result.Diagnostics.ShouldContain(d => d.Id == "THEX0001");
+        result.Diagnostics.ShouldContain(d => d.Severity == DiagnosticSeverity.Warning);
 
         // For old language versions (< C# 14), only EmbeddedAttribute should be generated
         generatedSources.ShouldContain(s => s.HintName.Contains("EmbeddedAttribute"));
@@ -78,42 +69,17 @@ public sealed class IncrementalGeneratorTests
 
         // Assert
         result.Results.ShouldNotBeEmpty();
+        result.Diagnostics.ShouldNotContain(d => d.Id == "THEX0001");
         var generatedSources = result.Results[0].GeneratedSources;
         generatedSources.ShouldContain(s => s.HintName.Contains("EmbeddedAttribute"));
         generatedSources.ShouldContain(s => s.HintName.Contains("ExceptionPolyfills"));
 
-        // CallerArgumentExpressionAttribute should only be generated if not built into the framework
-        if (FrameworkCapabilities.ShouldGenerateCallerArgumentExpressionAttribute())
-        {
-            generatedSources.ShouldContain(s => s.HintName.Contains("CallerArgumentExpressionAttribute"));
-        }
-        else
-        {
-            generatedSources.ShouldNotContain(s => s.HintName.Contains("CallerArgumentExpressionAttribute"));
-        }
-
-        // Check nullability attributes based on framework capabilities
-        if (FrameworkCapabilities.ShouldGenerateNullabilityAttributes())
-        {
-            generatedSources.ShouldContain(s => s.HintName.Contains("NotNullAttribute"));
-        }
-        else
-        {
-            generatedSources.ShouldNotContain(s => s.HintName.Contains("NotNullAttribute"));
-        }
-
-        // Check DoesNotReturn attributes based on framework capabilities
-        if (FrameworkCapabilities.ShouldGenerateDoesNotReturnAttributes())
-        {
-            generatedSources.ShouldContain(s => s.HintName.Contains("DoesNotReturnAttribute"));
-        }
-        else
-        {
-            generatedSources.ShouldNotContain(s => s.HintName.Contains("DoesNotReturnAttribute"));
-        }
+        ShouldGeneratedOrBuiltIn(generatedSources, "System.Runtime.CompilerServices.CallerArgumentExpressionAttribute");
+        ShouldGeneratedOrBuiltIn(generatedSources, "System.Diagnostics.CodeAnalysis.NotNullAttribute");
+        ShouldGeneratedOrBuiltIn(generatedSources, "System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute");
 
         // Unsafe types should NOT be generated when AllowUnsafe is false
-        generatedSources.ShouldNotContain(s => s.HintName.Contains("Unsafe"));
+        generatedSources.ShouldNotContain(s => s.SourceText.ToString().Contains("unsafe"));
     }
 
     /// <summary>
@@ -127,42 +93,18 @@ public sealed class IncrementalGeneratorTests
 
         // Assert
         result.Results.ShouldNotBeEmpty();
+        result.Diagnostics.ShouldNotContain(d => d.Id == "THEX0001");
         var generatedSources = result.Results[0].GeneratedSources;
         generatedSources.ShouldContain(s => s.HintName.Contains("EmbeddedAttribute"));
         generatedSources.ShouldContain(s => s.HintName.Contains("ExceptionPolyfills"));
 
-        // CallerArgumentExpressionAttribute should only be generated if not built into the framework
-        if (FrameworkCapabilities.ShouldGenerateCallerArgumentExpressionAttribute())
-        {
-            generatedSources.ShouldContain(s => s.HintName.Contains("CallerArgumentExpressionAttribute"));
-        }
-        else
-        {
-            generatedSources.ShouldNotContain(s => s.HintName.Contains("CallerArgumentExpressionAttribute"));
-        }
-
-        // Check nullability attributes based on framework capabilities
-        if (FrameworkCapabilities.ShouldGenerateNullabilityAttributes())
-        {
-            generatedSources.ShouldContain(s => s.HintName.Contains("NotNullAttribute"));
-        }
-        else
-        {
-            generatedSources.ShouldNotContain(s => s.HintName.Contains("NotNullAttribute"));
-        }
-
-        // Check DoesNotReturn attributes based on framework capabilities
-        if (FrameworkCapabilities.ShouldGenerateDoesNotReturnAttributes())
-        {
-            generatedSources.ShouldContain(s => s.HintName.Contains("DoesNotReturnAttribute"));
-        }
-        else
-        {
-            generatedSources.ShouldNotContain(s => s.HintName.Contains("DoesNotReturnAttribute"));
-        }
+        ShouldGeneratedOrBuiltIn(generatedSources, "System.Runtime.CompilerServices.CallerArgumentExpressionAttribute");
+        ShouldGeneratedOrBuiltIn(generatedSources, "System.Diagnostics.CodeAnalysis.NotNullAttribute");
+        ShouldGeneratedOrBuiltIn(generatedSources, "System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute");
 
         // Unsafe types SHOULD be generated when AllowUnsafe is true
-        generatedSources.ShouldContain(s => s.HintName.Contains("Unsafe"));
+        // Check that the ExceptionPolyfills file contains unsafe code
+        generatedSources.ShouldContain(s => s.SourceText.ToString().Contains("unsafe"));
     }
 
     /// <summary>
@@ -176,6 +118,7 @@ public sealed class IncrementalGeneratorTests
 
         // Assert
         result.Results.ShouldNotBeEmpty();
+        result.Diagnostics.ShouldNotContain(d => d.Id == "THEX0001");
         var generatedSources = result.Results[0].GeneratedSources;
 
         // When attributes are disabled, only EmbeddedAttribute and ExceptionPolyfills should be generated
@@ -190,61 +133,60 @@ public sealed class IncrementalGeneratorTests
     }
 
     /// <summary>
-    /// Verifies that attributes are generated appropriately based on the target framework.
-    /// On newer frameworks (like .NET 9.0), some attributes are built-in and should not be generated.
+    /// Verifies that GetTargetFrameworkFromSymbols correctly detects framework versions.
     /// </summary>
-    [TestMethod("Generator produces framework-appropriate attributes")]
-    public void Generator_Produces_Framework_Appropriate_Attributes()
+    [TestMethod("GetTargetFrameworkFromSymbols detects framework version from preprocessor symbols")]
+    [DataRow((string[])[], TargetFramework.PreNet6)]
+    [DataRow((string[])["NET5_0"], TargetFramework.PreNet6)]
+    [DataRow((string[])["NETSTANDARD2_1"], TargetFramework.PreNet6)]
+    [DataRow((string[])["NET6_0", "NET6_0_OR_GREATER"], TargetFramework.Net6)]
+    [DataRow((string[])["NET7_0", "NET6_0_OR_GREATER", "NET7_0_OR_GREATER"], TargetFramework.Net7)]
+    [DataRow((string[])["NET8_0", "NET6_0_OR_GREATER", "NET7_0_OR_GREATER", "NET8_0_OR_GREATER"], TargetFramework.Net8OrGreater)]
+    [DataRow((string[])["NET9_0", "NET6_0_OR_GREATER", "NET7_0_OR_GREATER", "NET8_0_OR_GREATER", "NET9_0_OR_GREATER"], TargetFramework.Net8OrGreater)]
+    public void GetTargetFrameworkFromSymbols_Detects_Framework_Version(string[] symbols, TargetFramework expected)
     {
         // Arrange - Act
-        var result = GeneratorTestRunner.RunGenerator(Source);
+        var result = ThrowHelperGenerator.GetTargetFrameworkFromSymbols(symbols);
+
+        // Assert
+        result.ShouldBe(expected);
+    }
+
+    /// <summary>
+    /// Verifies that the generator does not generate ExceptionPolyfills when it already exists.
+    /// </summary>
+    [TestMethod("Generator does not produce ExceptionPolyfills when type already exists")]
+    public void Generator_Does_Not_Produce_ExceptionPolyfills_When_Type_Already_Exists()
+    {
+        // Arrange - Act
+        // lang=C#-test
+        const string sourceWithExistingType = """
+        namespace System
+        {
+            public static class ExceptionPolyfills
+            {
+                public static void ThrowIfNull(object argument) => throw new System.ArgumentNullException();
+            }
+        }
+        namespace TestNamespace
+        {
+            public class TestClass
+            {
+            }
+        }
+        """;
+
+        var result = GeneratorTestRunner.RunGenerator(sourceWithExistingType);
 
         // Assert
         result.Results.ShouldNotBeEmpty();
         var generatedSources = result.Results[0].GeneratedSources;
 
-        // EmbeddedAttribute should always be generated
+        // Should generate EmbeddedAttribute
         generatedSources.ShouldContain(s => s.HintName.Contains("EmbeddedAttribute"));
 
-        // ExceptionPolyfills should be generated if language version is C# 14+
-        generatedSources.ShouldContain(s => s.HintName.Contains("ExceptionPolyfills"));
-
-        // Check CallerArgumentExpressionAttribute based on framework capabilities
-        if (FrameworkCapabilities.ShouldGenerateCallerArgumentExpressionAttribute())
-        {
-            // On older frameworks, CallerArgumentExpressionAttribute should be generated
-            generatedSources.ShouldContain(s => s.HintName.Contains("CallerArgumentExpressionAttribute"));
-        }
-        else
-        {
-            // On newer frameworks, CallerArgumentExpressionAttribute is built-in and should not be generated
-            generatedSources.ShouldNotContain(s => s.HintName.Contains("CallerArgumentExpressionAttribute"));
-        }
-
-        // Check nullability attributes based on framework capabilities
-        if (FrameworkCapabilities.ShouldGenerateNullabilityAttributes())
-        {
-            // On older frameworks, these attributes should be generated
-            generatedSources.ShouldContain(s => s.HintName.Contains("NotNullAttribute"));
-        }
-        else
-        {
-            // On .NET Core 3.0+, nullability attributes are built-in
-            generatedSources.ShouldNotContain(s => s.HintName.Contains("NotNullAttribute"));
-        }
-
-        // Check DoesNotReturn attributes based on framework capabilities
-        if (FrameworkCapabilities.ShouldGenerateDoesNotReturnAttributes())
-        {
-            // On older frameworks, these attributes should be generated
-            generatedSources.ShouldContain(s => s.HintName.Contains("DoesNotReturnAttribute"));
-            generatedSources.ShouldContain(s => s.HintName.Contains("DoesNotReturnIfAttribute"));
-        }
-        else
-        {
-            // On .NET 5.0+, DoesNotReturn attributes are built-in
-            generatedSources.ShouldNotContain(s => s.HintName.Contains("DoesNotReturnAttribute"));
-            generatedSources.ShouldNotContain(s => s.HintName.Contains("DoesNotReturnIfAttribute"));
-        }
+        // Should NOT generate ExceptionPolyfills because it already exists
+        generatedSources.ShouldNotContain(s => s.HintName.Contains("ExceptionPolyfills"));
     }
 }
+

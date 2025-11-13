@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
@@ -11,7 +12,6 @@ namespace Nogic.ThrowHelperExtensions;
 [Generator(LanguageNames.CSharp)]
 public class ThrowHelperGenerator : IIncrementalGenerator
 {
-    private const string EmbeddedAttribute = "Microsoft.CodeAnalysis.EmbeddedAttribute";
     private const LanguageVersion MinimumRequiredLanguageVersion = (LanguageVersion)1400; // C# 14.0
     private static readonly Regex EmbeddedResourceNameToFullyQualifiedTypeNameRegex = new(@"^Nogic\.ThrowHelperExtensions\.EmbeddedResources\.(\w+(?:\.\w+)+)\.cs$", RegexOptions.Compiled);
 
@@ -25,7 +25,8 @@ public class ThrowHelperGenerator : IIncrementalGenerator
         category: "Usage",
         defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
-        helpLinkUri: "https://github.com/nogic1008/ThrowHelperExtensions/blob/v1.0.0/README.md#usage");
+        helpLinkUri: "https://github.com/nogic1008/ThrowHelperExtensions/blob/v1.0.0/README.md#usage"
+    );
 
     /// <summary>
     /// Dictionary of embedded resource names mapped to their fully qualified type names.
@@ -52,20 +53,16 @@ public class ThrowHelperGenerator : IIncrementalGenerator
             token.ThrowIfCancellationRequested();
             return ((CSharpCompilation)compilation).LanguageVersion;
         });
-
         context.RegisterSourceOutput(languageVersionProvider, static (context, languageVersion) =>
         {
             if (languageVersion < MinimumRequiredLanguageVersion)
             {
-                var diagnostic = Diagnostic.Create(
-                    CSharpVersionWarning,
-                    Location.None,
-                    languageVersion.ToDisplayString());
+                var diagnostic = Diagnostic.Create(CSharpVersionWarning, Location.None, languageVersion.ToDisplayString());
                 context.ReportDiagnostic(diagnostic);
             }
         });
 
-        // Generate ExceptionPolyfills and necessary attributes with options
+        // Generate necessary attributes
         var buildOptions = context.AnalyzerConfigOptionsProvider.Select(static (options, token) =>
         {
             token.ThrowIfCancellationRequested();
@@ -74,64 +71,42 @@ public class ThrowHelperGenerator : IIncrementalGenerator
 
             // Try to read the build property
             if (globalOptions.TryGetValue("build_property.ThrowHelperExtensionsGenerateAttributes", out string? generateValue))
-            {
                 generateAttributes = !string.Equals(generateValue, "false", StringComparison.OrdinalIgnoreCase);
-            }
 
             return generateAttributes;
         });
+        var compilationWithConfig = context.CompilationProvider
+            .Combine(buildOptions)
+            .WithComparer(CompilationConfigComparer.Instance);
+        // Attribute types to generate
+        var attributeTypes = compilationWithConfig
+            .SelectMany(static (config, token) => GetAttributeTypes(config, token))
+            .Collect()
+            .WithComparer(TypeNamesComparer.Instance)
+            .SelectMany(static (types, _) => types);
+        context.RegisterSourceOutput(attributeTypes, this.EmitAttributeType);
 
-        var compilationWithConfig = context.CompilationProvider.Combine(buildOptions).WithComparer(CompilationConfigComparer.Instance);
-        var availableTypes = compilationWithConfig.SelectMany(GetNeedGenerateTypes).Collect().WithComparer(TypeNamesComparer.Instance);
-        context.RegisterSourceOutput(availableTypes.SelectMany(static (types, _) => types), this.EmitGeneratedType);
+        // Generate ExceptionPolyfills
+        context.RegisterSourceOutput(context.CompilationProvider, this.EmitPolyfillType);
     }
 
     /// <summary>
-    /// Determines which types need to be generated based on the compilation context and configuration.
+    /// Determines which attribute types need to be generated based on the compilation context and configuration.
     /// </summary>
     /// <param name="config">A tuple containing the compilation and whether to generate attributes.</param>
     /// <param name="token">Cancellation token to monitor for cancellation requests.</param>
     /// <returns>An immutable array of fully qualified type names that need to be generated.</returns>
-    private static ImmutableArray<string> GetNeedGenerateTypes((Compilation compilation, bool generateAttributes) config, CancellationToken token)
+    private static ImmutableArray<string> GetAttributeTypes((Compilation compilation, bool generateAttributes) config, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
-        if (((CSharpCompilation)config.compilation).LanguageVersion < MinimumRequiredLanguageVersion) // ExceptionPolyfills uses C# 14.0 features
+
+        // Skip if disabled on property or C# version is 13 or lower
+        if (!config.generateAttributes || ((CSharpCompilation)config.compilation).LanguageVersion < MinimumRequiredLanguageVersion)
             return ImmutableArray<string>.Empty;
 
-        var builder = ImmutableArray.CreateBuilder<string>();
-        foreach (var kvp in EmbeddedResources)
-        {
-            string fullTypeName = kvp.Key;
-            if (ShouldGenerateType(fullTypeName, config.compilation, config.generateAttributes, token))
-                builder.Add(fullTypeName);
-        }
-        return builder.ToImmutable();
-    }
-
-    /// <summary>
-    /// Determines whether a type should be generated based on the configuration and compilation context.
-    /// </summary>
-    /// <param name="fullTypeName">The fully qualified name of the type to check.</param>
-    /// <param name="compilation">The current compilation context.</param>
-    /// <param name="generateAttributes">Whether attribute generation is enabled.</param>
-    /// <param name="token">Cancellation token to monitor for cancellation requests.</param>
-    /// <returns>True if the type should be generated; otherwise, false.</returns>
-    private static bool ShouldGenerateType(string fullTypeName, Compilation compilation, bool generateAttributes, CancellationToken token)
-    {
-        // Skip EmbeddedAttribute as it's handled separately in post-initialization
-        if (fullTypeName == EmbeddedAttribute)
-            return false;
-
-        // Skip attribute generation if disabled via build property
-        if (fullTypeName.EndsWith("Attribute", StringComparison.Ordinal) && !generateAttributes)
-            return false;
-
-        // Skip if type already exists to avoid conflicts
-        if (IsTypeAlreadyExists(compilation, fullTypeName, token))
-            return false;
-
-        // Skip unsafe types if unsafe code is not allowed
-        return !fullTypeName.EndsWith("Unsafe", StringComparison.Ordinal) || ((CSharpCompilation)compilation).Options.AllowUnsafe;
+        return EmbeddedResources.Keys
+            .Where(n => !IsTypeAlreadyExists(config.compilation, n, token))
+            .ToImmutableArray();
     }
 
     /// <summary>
@@ -147,9 +122,12 @@ public class ThrowHelperGenerator : IIncrementalGenerator
     {
         token.ThrowIfCancellationRequested();
 
+        // First, try to get a single type by metadata name (most common case)
         if (compilation.GetTypeByMetadataName(fullTypeName) is INamedTypeSymbol typeSymbol)
             return compilation.IsSymbolAccessibleWithin(typeSymbol, compilation.Assembly);
 
+        // Fallback: Handle rare cases where multiple types exist with the same metadata name.
+        // This can occur with type forwarding or when the same type is defined in multiple referenced assemblies.
         foreach (var item in compilation.GetTypesByMetadataName(fullTypeName))
         {
             if (compilation.IsSymbolAccessibleWithin(item, compilation.Assembly))
@@ -167,21 +145,46 @@ public class ThrowHelperGenerator : IIncrementalGenerator
         if (context.CancellationToken.IsCancellationRequested)
             return;
 
-        if (!EmbeddedResources.TryGetValue(EmbeddedAttribute, out string? resource))
-            return;
+        // lang=C#-test
+        const string source = """
+        // <auto-generated/>
+        #pragma warning disable
+        #nullable enable annotations
 
-        using var stream = typeof(ThrowHelperGenerator).Assembly.GetManifestResourceStream(resource);
-        using var reader = new StreamReader(stream);
-        string source = reader.ReadToEnd();
-        context.AddSource($"{EmbeddedAttribute}.g.cs", source);
+        #pragma warning disable CS0612
+        #pragma warning disable CS0618
+        #pragma warning disable CS0108
+        #pragma warning disable CS0162
+        #pragma warning disable CS0164
+        #pragma warning disable CS0219
+        #pragma warning disable CS8602
+        #pragma warning disable CS8619
+        #pragma warning disable CS8620
+        #pragma warning disable CS8631
+        #pragma warning disable CA1050
+
+        // Licensed to the .NET Foundation under one or more agreements.
+        // The .NET Foundation licenses this file to you under the MIT license.
+
+        namespace Microsoft.CodeAnalysis;
+
+        /// <summary>
+        /// A special attribute recognized by Roslyn, that marks a type as "embedded", meaning it won't ever be visible from other assemblies.
+        /// </summary>
+        [global::System.AttributeUsage(global::System.AttributeTargets.All)]
+        [global::System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverage]
+        internal sealed partial class EmbeddedAttribute : global::System.Attribute
+        { }
+        """;
+        context.AddSource("Microsoft.CodeAnalysis.EmbeddedAttribute.g.cs", source);
     }
 
     /// <summary>
-    /// Emits a generated source file for the specified type into the compilation context.
+    /// Emits a generated attribute source file into the compilation context.
     /// </summary>
     /// <param name="context">The source production context.</param>
-    /// <param name="typeName">The name of the type for which the generated source file should be emitted.</param>
-    private void EmitGeneratedType(SourceProductionContext context, string typeName)
+    /// <param name="typeName">The fully qualified type name of the attribute.</param>
+    private void EmitAttributeType(SourceProductionContext context, string typeName)
     {
         if (context.CancellationToken.IsCancellationRequested)
             return;
@@ -198,8 +201,52 @@ public class ThrowHelperGenerator : IIncrementalGenerator
     }
 
     /// <summary>
+    /// Emits dynamically generated polyfill source files into the compilation context.
+    /// </summary>
+    /// <param name="context">The source production context.</param>
+    /// <param name="compilation">The current compilation context.</param>
+    private void EmitPolyfillType(SourceProductionContext context, Compilation compilation)
+    {
+        if (context.CancellationToken.IsCancellationRequested)
+            return;
+
+        // ExceptionPolyfills uses C# 14.0 features
+        if (((CSharpCompilation)compilation).LanguageVersion < MinimumRequiredLanguageVersion)
+            return;
+
+        // Check if polyfill type already exists
+        if (IsTypeAlreadyExists(compilation, "System.ExceptionPolyfills", context.CancellationToken))
+            return;
+
+        var parseOptions = compilation.SyntaxTrees.FirstOrDefault()?.Options as CSharpParseOptions;
+        var targetFramework = GetTargetFrameworkFromSymbols(parseOptions?.PreprocessorSymbolNames ?? []);
+        bool allowUnsafe = ((CSharpCompilation)compilation).Options.AllowUnsafe;
+        string source = ExceptionPolyfillsBuilder.Generate(targetFramework, allowUnsafe);
+        var sourceText = SourceText.From(source, Encoding.UTF8);
+        context.AddSource("System.ExceptionPolyfills.g.cs", sourceText);
+    }
+
+    /// <summary>
+    /// Detects the target framework version from preprocessor symbols.
+    /// </summary>
+    /// <param name="symbols">The preprocessor symbols.</param>
+    /// <returns>The target framework version.</returns>
+    internal static TargetFramework GetTargetFrameworkFromSymbols(IEnumerable<string> symbols)
+    {
+        if (symbols.Contains("NET8_0_OR_GREATER"))
+            return TargetFramework.Net8OrGreater;
+        if (symbols.Contains("NET7_0_OR_GREATER"))
+            return TargetFramework.Net7;
+        if (symbols.Contains("NET6_0_OR_GREATER"))
+            return TargetFramework.Net6;
+
+        return TargetFramework.PreNet6;
+    }
+
+    /// <summary>
     /// Comparer for compilation and build options tuple to optimize incremental generation.
     /// </summary>
+    [ExcludeFromCodeCoverage]
     private sealed class CompilationConfigComparer : IEqualityComparer<(Compilation compilation, bool generateAttributes)>
     {
         public static readonly CompilationConfigComparer Instance = new();
@@ -219,6 +266,7 @@ public class ThrowHelperGenerator : IIncrementalGenerator
     /// <summary>
     /// Comparer for immutable arrays of type names to optimize incremental generation.
     /// </summary>
+    [ExcludeFromCodeCoverage]
     private sealed class TypeNamesComparer : IEqualityComparer<ImmutableArray<string>>
     {
         public static readonly TypeNamesComparer Instance = new();
@@ -236,4 +284,19 @@ public class ThrowHelperGenerator : IIncrementalGenerator
             }
         }
     }
+}
+
+/// <summary>
+/// Represents the target framework version.
+/// </summary>
+public enum TargetFramework
+{
+    /// <summary>Before .NET 6.0 (.NET 5.0 and earlier, .NET Standard 2.1 and earlier)</summary>
+    PreNet6 = 0,
+    /// <summary>.NET 6.0</summary>
+    Net6 = 6,
+    /// <summary>.NET 7.0</summary>
+    Net7 = 7,
+    /// <summary>.NET 8.0 or greater</summary>
+    Net8OrGreater = 8,
 }
