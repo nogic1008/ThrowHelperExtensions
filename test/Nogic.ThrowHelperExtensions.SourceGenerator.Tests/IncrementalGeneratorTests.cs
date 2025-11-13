@@ -151,4 +151,42 @@ public sealed class IncrementalGeneratorTests
         // Assert
         result.ShouldBe(expected);
     }
+
+    /// <summary>
+    /// Verifies that the generator does not generate ExceptionPolyfills when it already exists.
+    /// </summary>
+    [TestMethod("Generator does not produce ExceptionPolyfills when type already exists")]
+    public void Generator_Does_Not_Produce_ExceptionPolyfills_When_Type_Already_Exists()
+    {
+        // Arrange - Act
+        // lang=C#-test
+        const string sourceWithExistingType = """
+        namespace System
+        {
+            public static class ExceptionPolyfills
+            {
+                public static void ThrowIfNull(object argument) => throw new System.ArgumentNullException();
+            }
+        }
+        namespace TestNamespace
+        {
+            public class TestClass
+            {
+            }
+        }
+        """;
+
+        var result = GeneratorTestRunner.RunGenerator(sourceWithExistingType);
+
+        // Assert
+        result.Results.ShouldNotBeEmpty();
+        var generatedSources = result.Results[0].GeneratedSources;
+
+        // Should generate EmbeddedAttribute
+        generatedSources.ShouldContain(s => s.HintName.Contains("EmbeddedAttribute"));
+
+        // Should NOT generate ExceptionPolyfills because it already exists
+        generatedSources.ShouldNotContain(s => s.HintName.Contains("ExceptionPolyfills"));
+    }
 }
+
