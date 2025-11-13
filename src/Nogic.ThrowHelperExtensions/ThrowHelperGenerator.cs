@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
@@ -121,9 +122,12 @@ public class ThrowHelperGenerator : IIncrementalGenerator
     {
         token.ThrowIfCancellationRequested();
 
+        // First, try to get a single type by metadata name (most common case)
         if (compilation.GetTypeByMetadataName(fullTypeName) is INamedTypeSymbol typeSymbol)
             return compilation.IsSymbolAccessibleWithin(typeSymbol, compilation.Assembly);
 
+        // Fallback: Handle rare cases where multiple types exist with the same metadata name.
+        // This can occur with type forwarding or when the same type is defined in multiple referenced assemblies.
         foreach (var item in compilation.GetTypesByMetadataName(fullTypeName))
         {
             if (compilation.IsSymbolAccessibleWithin(item, compilation.Assembly))
@@ -242,6 +246,7 @@ public class ThrowHelperGenerator : IIncrementalGenerator
     /// <summary>
     /// Comparer for compilation and build options tuple to optimize incremental generation.
     /// </summary>
+    [ExcludeFromCodeCoverage]
     private sealed class CompilationConfigComparer : IEqualityComparer<(Compilation compilation, bool generateAttributes)>
     {
         public static readonly CompilationConfigComparer Instance = new();
@@ -261,6 +266,7 @@ public class ThrowHelperGenerator : IIncrementalGenerator
     /// <summary>
     /// Comparer for immutable arrays of type names to optimize incremental generation.
     /// </summary>
+    [ExcludeFromCodeCoverage]
     private sealed class TypeNamesComparer : IEqualityComparer<ImmutableArray<string>>
     {
         public static readonly TypeNamesComparer Instance = new();
