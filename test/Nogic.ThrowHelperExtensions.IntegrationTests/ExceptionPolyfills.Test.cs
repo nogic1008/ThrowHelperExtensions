@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace Nogic.ThrowHelperExtensions.Tests;
+namespace Nogic.ThrowHelperExtensions.IntegrationTests;
 
 /// <summary>
 /// Unit test class for <see cref="ExceptionPolyfills"/>
