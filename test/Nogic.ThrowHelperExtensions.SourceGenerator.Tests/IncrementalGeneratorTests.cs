@@ -24,7 +24,7 @@ public sealed class IncrementalGeneratorTests
     /// </summary>
     private static class FrameworkCapabilities
     {
-        private static readonly bool IsNetFramework = 
+        private static readonly bool IsNetFramework =
             System.Runtime.InteropServices.RuntimeInformation.FrameworkDescription.StartsWith(".NET Framework");
 
         /// <summary>
@@ -60,7 +60,7 @@ public sealed class IncrementalGeneratorTests
         // Assert - Generator should produce minimal output for older C# versions (only EmbeddedAttribute)
         result.Results.ShouldNotBeEmpty();
         var generatedSources = result.Results[0].GeneratedSources;
-        
+
         // For old language versions (< C# 14), only EmbeddedAttribute should be generated
         generatedSources.ShouldContain(s => s.HintName.Contains("EmbeddedAttribute"));
         generatedSources.ShouldNotContain(s => s.HintName.Contains("CallerArgumentExpressionAttribute"));
@@ -81,7 +81,7 @@ public sealed class IncrementalGeneratorTests
         var generatedSources = result.Results[0].GeneratedSources;
         generatedSources.ShouldContain(s => s.HintName.Contains("EmbeddedAttribute"));
         generatedSources.ShouldContain(s => s.HintName.Contains("ExceptionPolyfills"));
-        
+
         // CallerArgumentExpressionAttribute should only be generated if not built into the framework
         if (FrameworkCapabilities.ShouldGenerateCallerArgumentExpressionAttribute())
         {
@@ -91,7 +91,7 @@ public sealed class IncrementalGeneratorTests
         {
             generatedSources.ShouldNotContain(s => s.HintName.Contains("CallerArgumentExpressionAttribute"));
         }
-        
+
         // Check nullability attributes based on framework capabilities
         if (FrameworkCapabilities.ShouldGenerateNullabilityAttributes())
         {
@@ -101,7 +101,7 @@ public sealed class IncrementalGeneratorTests
         {
             generatedSources.ShouldNotContain(s => s.HintName.Contains("NotNullAttribute"));
         }
-        
+
         // Check DoesNotReturn attributes based on framework capabilities
         if (FrameworkCapabilities.ShouldGenerateDoesNotReturnAttributes())
         {
@@ -111,7 +111,7 @@ public sealed class IncrementalGeneratorTests
         {
             generatedSources.ShouldNotContain(s => s.HintName.Contains("DoesNotReturnAttribute"));
         }
-        
+
         // Unsafe types should NOT be generated when AllowUnsafe is false
         generatedSources.ShouldNotContain(s => s.HintName.Contains("Unsafe"));
     }
@@ -130,7 +130,7 @@ public sealed class IncrementalGeneratorTests
         var generatedSources = result.Results[0].GeneratedSources;
         generatedSources.ShouldContain(s => s.HintName.Contains("EmbeddedAttribute"));
         generatedSources.ShouldContain(s => s.HintName.Contains("ExceptionPolyfills"));
-        
+
         // CallerArgumentExpressionAttribute should only be generated if not built into the framework
         if (FrameworkCapabilities.ShouldGenerateCallerArgumentExpressionAttribute())
         {
@@ -140,7 +140,7 @@ public sealed class IncrementalGeneratorTests
         {
             generatedSources.ShouldNotContain(s => s.HintName.Contains("CallerArgumentExpressionAttribute"));
         }
-        
+
         // Check nullability attributes based on framework capabilities
         if (FrameworkCapabilities.ShouldGenerateNullabilityAttributes())
         {
@@ -150,7 +150,7 @@ public sealed class IncrementalGeneratorTests
         {
             generatedSources.ShouldNotContain(s => s.HintName.Contains("NotNullAttribute"));
         }
-        
+
         // Check DoesNotReturn attributes based on framework capabilities
         if (FrameworkCapabilities.ShouldGenerateDoesNotReturnAttributes())
         {
@@ -160,7 +160,7 @@ public sealed class IncrementalGeneratorTests
         {
             generatedSources.ShouldNotContain(s => s.HintName.Contains("DoesNotReturnAttribute"));
         }
-        
+
         // Unsafe types SHOULD be generated when AllowUnsafe is true
         generatedSources.ShouldContain(s => s.HintName.Contains("Unsafe"));
     }
@@ -177,12 +177,12 @@ public sealed class IncrementalGeneratorTests
         // Assert
         result.Results.ShouldNotBeEmpty();
         var generatedSources = result.Results[0].GeneratedSources;
-        
+
         // When attributes are disabled, only EmbeddedAttribute and ExceptionPolyfills should be generated
         // (as these are always needed for the generator itself)
         generatedSources.ShouldContain(s => s.HintName.Contains("EmbeddedAttribute"));
         generatedSources.ShouldContain(s => s.HintName.Contains("ExceptionPolyfills"));
-        
+
         // But other attributes should not be generated
         generatedSources.ShouldNotContain(s => s.HintName.Contains("CallerArgumentExpressionAttribute"));
         generatedSources.ShouldNotContain(s => s.HintName.Contains("NotNullAttribute"));
@@ -202,10 +202,10 @@ public sealed class IncrementalGeneratorTests
         // Assert
         result.Results.ShouldNotBeEmpty();
         var generatedSources = result.Results[0].GeneratedSources;
-        
+
         // EmbeddedAttribute should always be generated
         generatedSources.ShouldContain(s => s.HintName.Contains("EmbeddedAttribute"));
-        
+
         // ExceptionPolyfills should be generated if language version is C# 14+
         generatedSources.ShouldContain(s => s.HintName.Contains("ExceptionPolyfills"));
 
