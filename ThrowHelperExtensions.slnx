@@ -13,6 +13,7 @@
   </Folder>
   <Folder Name="/test/">
     <Project Path="test/WithOtherGenerator/WithOtherGenerator.csproj" />
-    <Project Path="test/Nogic.ThrowHelperExtensions.Tests/Nogic.ThrowHelperExtensions.Tests.csproj" />
+    <Project Path="test/Nogic.ThrowHelperExtensions.IntegrationTests/Nogic.ThrowHelperExtensions.IntegrationTests.csproj" />
+    <Project Path="test/Nogic.ThrowHelperExtensions.SourceGenerator.Tests/Nogic.ThrowHelperExtensions.SourceGenerator.Tests.csproj" />
   </Folder>
 </Solution>
