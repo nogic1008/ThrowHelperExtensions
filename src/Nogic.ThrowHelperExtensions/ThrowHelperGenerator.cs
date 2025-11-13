@@ -21,11 +21,11 @@ public class ThrowHelperGenerator : IIncrementalGenerator
     private static readonly DiagnosticDescriptor CSharpVersionWarning = new(
         id: "THEX0001",
         title: "C# language version must be 14 or higher",
-        messageFormat: "ThrowHelperExtensions requires C# 14 (preview) or higher. Current version is {0}. Please set <LangVersion>preview</LangVersion> in your project file.",
+        messageFormat: "ThrowHelperExtensions requires C# 14 or higher. Current version is {0}. Please set <LangVersion>preview</LangVersion> in your project file.",
         category: "Usage",
         defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
-        helpLinkUri: "https://github.com/nogic1008/ThrowHelperExtensions#usage");
+        helpLinkUri: "https://github.com/nogic1008/ThrowHelperExtensions/blob/v1.0.0/README.md#usage");
 
     /// <summary>
     /// Dictionary of embedded resource names mapped to their fully qualified type names.
