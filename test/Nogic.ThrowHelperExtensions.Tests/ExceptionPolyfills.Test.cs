@@ -391,25 +391,9 @@ public sealed class ExceptionPolyfillsTest
     /// <param name="expectedOverloadTypes">Expected parameter types for specific overloads to verify. Use null to represent generic T parameter.</param>
     private static void VerifyPolyfillMethod(Type frameworkType, string methodName, MethodInfo[] polyfillMethods, params Type?[] expectedOverloadTypes)
     {
-        bool hasBuiltInMethod = HasFrameworkMethod(frameworkType, methodName, expectedOverloadTypes);
-
-        if (!hasBuiltInMethod)
-        {
-            AssertPolyfillMethodExists(frameworkType, methodName, polyfillMethods, expectedOverloadTypes);
-        }
-    }
-
-    /// <summary>
-    /// Checks if the framework already has the specified method with the expected signature
-    /// </summary>
-    /// <param name="frameworkType">The framework exception type to check</param>
-    /// <param name="methodName">The method name to check</param>
-    /// <param name="expectedOverloadTypes">Expected parameter types</param>
-    /// <returns>True if the framework has the method</returns>
-    private static bool HasFrameworkMethod(Type frameworkType, string methodName, Type[] expectedOverloadTypes)
-    {
         var frameworkMethods = frameworkType.GetMethods(BindingFlags.Public | BindingFlags.Static);
-        return frameworkMethods.Any(m => m.Name == methodName && DoesMethodMatchExpectedSignature(m, expectedOverloadTypes));
+        if (!frameworkMethods.Any(m => m.Name == methodName && DoesMethodMatchExpectedSignature(m, expectedOverloadTypes)))
+            AssertPolyfillMethodExists(frameworkType, methodName, polyfillMethods, expectedOverloadTypes);
     }
 
     /// <summary>
@@ -418,22 +402,23 @@ public sealed class ExceptionPolyfillsTest
     /// <param name="frameworkType">The framework exception type</param>
     /// <param name="methodName">The method name</param>
     /// <param name="polyfillMethods">Available polyfill methods</param>
-    /// <param name="expectedOverloadTypes">Expected parameter types</param>
-    private static void AssertPolyfillMethodExists(Type frameworkType, string methodName, MethodInfo[] polyfillMethods, Type[] expectedOverloadTypes)
+    /// <param name="expectedOverloadTypes">Expected parameter types. Use null to represent generic T parameter.</param>
+    private static void AssertPolyfillMethodExists(Type frameworkType, string methodName, MethodInfo[] polyfillMethods, Type?[] expectedOverloadTypes)
     {
-        bool hasPolyfillOverload = polyfillMethods
-            .Any(m => m.Name == methodName && DoesMethodMatchExpectedSignature(m, expectedOverloadTypes));
-        string typeNames = string.Join(", ", expectedOverloadTypes.Select(t => t.Name));
-        hasPolyfillOverload.ShouldBeTrue($"{frameworkType.Name}.{methodName} should have polyfill overload with parameters ({typeNames}) when framework lacks built-in version");
+        string typeNames = string.Join(", ", expectedOverloadTypes.Select(t => t?.Name ?? "T"));
+        polyfillMethods.ShouldContain(
+            m => m.Name == methodName && DoesMethodMatchExpectedSignature(m, expectedOverloadTypes),
+            $"{frameworkType.Name}.{methodName}({typeNames}) should have polyfill when framework lacks built-in version"
+        );
     }
 
     /// <summary>
     /// Checks if a method matches the expected signature, with optional string? parameter at the end
     /// </summary>
     /// <param name="method">The method to check</param>
-    /// <param name="expectedOverloadTypes">Expected parameter types (excluding optional string? parameter)</param>
+    /// <param name="expectedOverloadTypes">Expected parameter types (excluding optional string? parameter). Use null to represent generic T parameter.</param>
     /// <returns>True if the method matches the expected signature</returns>
-    private static bool DoesMethodMatchExpectedSignature(MethodInfo method, Type[] expectedOverloadTypes)
+    private static bool DoesMethodMatchExpectedSignature(MethodInfo method, Type?[] expectedOverloadTypes)
     {
         var parameters = method.GetParameters();
         int expectedCount = expectedOverloadTypes.Length;
@@ -465,35 +450,39 @@ public sealed class ExceptionPolyfillsTest
     {
         // If expectedType is null, it represents a generic T parameter
         if (expectedType is null)
-        {
             return method.IsGenericMethodDefinition && actualType.IsGenericParameter;
-        }
 
         // Direct type match
         if (actualType == expectedType)
             return true;
 
         // Handle generic method parameters with constraints
-        if (!method.IsGenericMethodDefinition || !actualType.IsGenericParameter || !expectedType.IsGenericTypeDefinition)
+        if (!method.IsGenericMethodDefinition || !actualType.IsGenericParameter)
             return false;
 
-        var constraints = actualType.GetGenericParameterConstraints();
-
-        // For generic constraints like IEquatable<T>, IComparable<T>, or INumberBase<T>:
-        // The constraint should be the expected interface with T as the same generic parameter
-        return constraints.Any(constraint =>
+        // For unconstrained generic type parameters, check if expectedType is a generic type definition that could match
+        if (expectedType.IsGenericTypeDefinition)
         {
-            if (!constraint.IsGenericType)
-                return false;
+            var constraints = actualType.GetGenericParameterConstraints();
 
-            var constraintDefinition = constraint.GetGenericTypeDefinition();
-            if (constraintDefinition != expectedType)
-                return false;
+            // For generic constraints like IComparable<T>, or INumberBase<T>:
+            // The constraint should be the expected interface with T as the same generic parameter
+            return constraints.Any(constraint =>
+            {
+                if (!constraint.IsGenericType)
+                    return false;
 
-            // Verify that T in the constraint (e.g., IEquatable<T>) is the same as our generic parameter
-            var constraintArgs = constraint.GetGenericArguments();
-            return constraintArgs.Length == 1 && constraintArgs[0] == actualType;
-        });
+                var constraintDefinition = constraint.GetGenericTypeDefinition();
+                if (constraintDefinition != expectedType)
+                    return false;
+
+                // Verify that T in the constraint (e.g., IComparable<T>) is the same as our generic parameter
+                var constraintArgs = constraint.GetGenericArguments();
+                return constraintArgs.Length == 1 && constraintArgs[0] == actualType;
+            });
+        }
+
+        return false;
     }
     #endregion Extension Methods Verification
 }
