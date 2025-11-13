@@ -139,7 +139,6 @@ public sealed class ExceptionPolyfillsBuilderTests
     [TestMethod($"{nameof(ExceptionPolyfillsBuilder)}.{nameof(ExceptionPolyfillsBuilder.Generate)}(<any>, true) > generates unsafe polyfills")]
     [DataRow(TargetFramework.PreNet6, true)]
     [DataRow(TargetFramework.Net6, true)]
-    [DataRow(TargetFramework.Net7, true)]
     public void Generate_Unsafe_Code_When(TargetFramework targetFramework, bool allowUnsafe)
     {
         // Act
@@ -153,7 +152,7 @@ public sealed class ExceptionPolyfillsBuilderTests
     [TestMethod($"{nameof(ExceptionPolyfillsBuilder)}.{nameof(ExceptionPolyfillsBuilder.Generate)}(<any>, false) > does not generate unsafe polyfills")]
     [DataRow(TargetFramework.PreNet6, false)]
     [DataRow(TargetFramework.Net6, false)]
-    [DataRow(TargetFramework.Net7, false)]
+    [DataRow(TargetFramework.Net7, true)]
     [DataRow(TargetFramework.Net8OrGreater, true)]
     public void Does_Not_Include_Unsafe_When(TargetFramework targetFramework, bool allowUnsafe)
     {

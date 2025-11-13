@@ -16,7 +16,10 @@ internal static class ExceptionPolyfillsBuilder
     /// <returns>The generated source code as a string.</returns>
     public static string Generate(TargetFramework targetFramework, bool includeUnsafe)
     {
-        var builder = new StringBuilder();
+        // Estimated buffer size based on minimum output (.NET 8+ with no unsafe):
+        // - Header + class declaration: ~800 bytes
+        // Rounded up to 1KB for safety margin
+        var builder = new StringBuilder(capacity: 1024);
 
         // Header
         // lang=c#-test
@@ -66,9 +69,9 @@ internal static class ExceptionPolyfillsBuilder
     private static void GenerateArgumentNullException(StringBuilder builder, TargetFramework targetFramework, bool includeUnsafe)
     {
         // ArgumentNullException.ThrowIfNull(object) is available in .NET 6+
-        // ArgumentNullException.ThrowIfNull(void*) is available in .NET 8+
+        // ArgumentNullException.ThrowIfNull(void*) is available in .NET 7+
         bool hasSafeVariant = targetFramework < TargetFramework.Net6;
-        bool hasUnsafeVariant = includeUnsafe && targetFramework <= TargetFramework.Net7;
+        bool hasUnsafeVariant = includeUnsafe && targetFramework < TargetFramework.Net7;
 
         if (!hasSafeVariant && !hasUnsafeVariant)
             return;
@@ -140,8 +143,8 @@ internal static class ExceptionPolyfillsBuilder
         if (targetFramework >= TargetFramework.Net8OrGreater)
             return;
 
-        // ThrowIfNullOrEmpty is available in .NET 7+ (!NET7_0_OR_GREATER in template)
-        // ThrowIfNullOrWhiteSpace is available in .NET 8+ (!NET8_0_OR_GREATER in template)
+        // ThrowIfNullOrEmpty is available in .NET 7+
+        // ThrowIfNullOrWhiteSpace is available in .NET 8+
         bool includeThrowIfNullOrEmpty = targetFramework < TargetFramework.Net7;
 
         // lang=c#-test
@@ -204,7 +207,7 @@ internal static class ExceptionPolyfillsBuilder
 
     private static void GenerateObjectDisposedException(StringBuilder builder, TargetFramework targetFramework)
     {
-        // ObjectDisposedException.ThrowIf is available in .NET 7+ (!NET7_0_OR_GREATER in template)
+        // ObjectDisposedException.ThrowIf is available in .NET 7+
         if (targetFramework >= TargetFramework.Net7)
             return;
 
