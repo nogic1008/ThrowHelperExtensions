@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text;
 
 namespace Nogic.ThrowHelperExtensions;
@@ -142,10 +143,6 @@ internal static class ExceptionPolyfillsBuilder
         // ThrowIfNullOrEmpty is available in .NET 7+ (!NET7_0_OR_GREATER in template)
         // ThrowIfNullOrWhiteSpace is available in .NET 8+ (!NET8_0_OR_GREATER in template)
         bool includeThrowIfNullOrEmpty = targetFramework < TargetFramework.Net7;
-        bool includeThrowIfNullOrWhiteSpace = true; // Always included for < .NET 8
-
-        if (!includeThrowIfNullOrEmpty && !includeThrowIfNullOrWhiteSpace)
-            return;
 
         // lang=c#-test
         builder.AppendLine("""
@@ -176,25 +173,22 @@ internal static class ExceptionPolyfillsBuilder
             """);
         }
 
-        if (includeThrowIfNullOrWhiteSpace)
-        {
-            // lang=c#-test
-            builder.AppendLine("""
-                    /// <summary>Throws an exception if <paramref name="argument"/> is null, empty, or consists only of white-space characters.</summary>
-                    /// <param name="argument">The string argument to validate.</param>
-                    /// <param name="paramName">The name of the parameter with which <paramref name="argument"/> corresponds.</param>
-                    /// <exception cref="global::System.ArgumentNullException"><paramref name="argument"/> is <see langword="null"/>.</exception>
-                    /// <exception cref="global::System.ArgumentException"><paramref name="argument"/> is empty or consists only of white-space characters.</exception>
-                    public static void ThrowIfNullOrWhiteSpace(
-                        [global::System.Diagnostics.CodeAnalysis.NotNull] string? argument,
-                        [global::System.Runtime.CompilerServices.CallerArgumentExpression(nameof(argument))] string? paramName = null
-                    )
-                    {
-                        if (string.IsNullOrWhiteSpace(argument))
-                            ThrowArgumentException(argument, paramName, "The value cannot be an empty string or composed entirely of whitespace.");
-                    }
-            """);
-        }
+        // lang=c#-test
+        builder.AppendLine("""
+                /// <summary>Throws an exception if <paramref name="argument"/> is null, empty, or consists only of white-space characters.</summary>
+                /// <param name="argument">The string argument to validate.</param>
+                /// <param name="paramName">The name of the parameter with which <paramref name="argument"/> corresponds.</param>
+                /// <exception cref="global::System.ArgumentNullException"><paramref name="argument"/> is <see langword="null"/>.</exception>
+                /// <exception cref="global::System.ArgumentException"><paramref name="argument"/> is empty or consists only of white-space characters.</exception>
+                public static void ThrowIfNullOrWhiteSpace(
+                    [global::System.Diagnostics.CodeAnalysis.NotNull] string? argument,
+                    [global::System.Runtime.CompilerServices.CallerArgumentExpression(nameof(argument))] string? paramName = null
+                )
+                {
+                    if (string.IsNullOrWhiteSpace(argument))
+                        ThrowArgumentException(argument, paramName, "The value cannot be an empty string or composed entirely of whitespace.");
+                }
+        """);
 
         // lang=c#-test
         builder.AppendLine("""
@@ -360,8 +354,7 @@ internal static class ExceptionPolyfillsBuilder
 
     private static void GenerateNumericMethods(StringBuilder builder, TargetFramework targetFramework)
     {
-        if (targetFramework >= TargetFramework.Net8OrGreater)
-            return;
+        Debug.Assert(targetFramework < TargetFramework.Net8OrGreater);
 
         if (targetFramework == TargetFramework.Net7)
         {
