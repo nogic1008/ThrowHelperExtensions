@@ -12,7 +12,20 @@ namespace Nogic.ThrowHelperExtensions;
 public class ThrowHelperGenerator : IIncrementalGenerator
 {
     private const string EmbeddedAttribute = "Microsoft.CodeAnalysis.EmbeddedAttribute";
+    private const LanguageVersion MinimumRequiredLanguageVersion = (LanguageVersion)1400; // C# 14.0
     private static readonly Regex EmbeddedResourceNameToFullyQualifiedTypeNameRegex = new(@"^Nogic\.ThrowHelperExtensions\.EmbeddedResources\.(\w+(?:\.\w+)+)\.cs$", RegexOptions.Compiled);
+
+    /// <summary>
+    /// Diagnostic descriptor for C# language version warning.
+    /// </summary>
+    private static readonly DiagnosticDescriptor CSharpVersionWarning = new(
+        id: "THEX0001",
+        title: "C# language version must be 14 or higher",
+        messageFormat: "ThrowHelperExtensions requires C# 14 or higher. Current version is {0}. Please set <LangVersion>14</LangVersion> in your project file.",
+        category: "Usage",
+        defaultSeverity: DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        helpLinkUri: "https://github.com/nogic1008/ThrowHelperExtensions/blob/v1.0.0/README.md#usage");
 
     /// <summary>
     /// Dictionary of embedded resource names mapped to their fully qualified type names.
@@ -32,6 +45,25 @@ public class ThrowHelperGenerator : IIncrementalGenerator
     {
         // Generate EmbeddedAttribute first (always safe to generate)
         context.RegisterPostInitializationOutput(EmitEmbeddedAttribute);
+
+        // Check C# language version and report warning if needed
+        var languageVersionProvider = context.CompilationProvider.Select(static (compilation, token) =>
+        {
+            token.ThrowIfCancellationRequested();
+            return ((CSharpCompilation)compilation).LanguageVersion;
+        });
+
+        context.RegisterSourceOutput(languageVersionProvider, static (context, languageVersion) =>
+        {
+            if (languageVersion < MinimumRequiredLanguageVersion)
+            {
+                var diagnostic = Diagnostic.Create(
+                    CSharpVersionWarning,
+                    Location.None,
+                    languageVersion.ToDisplayString());
+                context.ReportDiagnostic(diagnostic);
+            }
+        });
 
         // Generate ExceptionPolyfills and necessary attributes with options
         var buildOptions = context.AnalyzerConfigOptionsProvider.Select(static (options, token) =>
@@ -63,7 +95,7 @@ public class ThrowHelperGenerator : IIncrementalGenerator
     private static ImmutableArray<string> GetNeedGenerateTypes((Compilation compilation, bool generateAttributes) config, CancellationToken token)
     {
         token.ThrowIfCancellationRequested();
-        if (((CSharpCompilation)config.compilation).LanguageVersion < (LanguageVersion)1400) // ExceptionPolyfills uses C# 14.0 features
+        if (((CSharpCompilation)config.compilation).LanguageVersion < MinimumRequiredLanguageVersion) // ExceptionPolyfills uses C# 14.0 features
             return ImmutableArray<string>.Empty;
 
         var builder = ImmutableArray.CreateBuilder<string>();
