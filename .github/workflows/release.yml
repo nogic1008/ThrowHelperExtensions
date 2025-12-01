@@ -19,7 +19,7 @@ jobs:
       id-token: write  # enable GitHub OIDC token issuance
 
     steps:
-      - uses: actions/checkout@v5.0.0
+      - uses: actions/checkout@v6.0.0
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v5.0.1
         with:
