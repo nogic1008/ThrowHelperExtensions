@@ -15,7 +15,10 @@ env:
 jobs:
   lint:
     name: Lint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
+    permissions:
+      contents: read
+
     steps:
       - uses: actions/checkout@v6.0.1
       - name: Setup .NET SDK # detected from global.json
@@ -28,6 +31,9 @@ jobs:
   validate:
     name: Validate NuGet Lock Files
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
     steps:
       - uses: actions/checkout@v6.0.1
       - name: Setup .NET SDK
@@ -51,6 +57,10 @@ jobs:
         include:
           - os: windows-latest
             framework: net48
+    permissions:
+      contents: read
+      id-token: write # to use OIDC
+
     steps:
       - uses: actions/checkout@v6.0.1
       - name: Setup .NET SDK
@@ -70,7 +80,7 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5.5.2
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
+          use_oidc: true
           flags: ${{ runner.os }},${{ matrix.framework }}
           disable_search: true
           files: "./test/Nogic.ThrowHelperExtensions.SourceGenerator.Tests/bin/Debug/${{ matrix.framework }}/TestResults/cobertura.xml"
