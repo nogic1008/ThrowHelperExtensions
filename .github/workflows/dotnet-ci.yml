@@ -20,7 +20,7 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v6.0.1
+      - uses: actions/checkout@v6.0.2
       - name: Setup .NET SDK # detected from global.json
         uses: actions/setup-dotnet@v5.1.0
       - name: Add Problem Matcher for dotnet-format
@@ -35,7 +35,7 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v6.0.1
+      - uses: actions/checkout@v6.0.2
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v5.1.0
         with:
@@ -62,7 +62,7 @@ jobs:
       id-token: write # to use OIDC
 
     steps:
-      - uses: actions/checkout@v6.0.1
+      - uses: actions/checkout@v6.0.2
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v5.1.0
         with:
