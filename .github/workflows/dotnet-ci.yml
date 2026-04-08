@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6.0.2
       - name: Setup .NET SDK # detected from global.json
-        uses: actions/setup-dotnet@v5.1.0
+        uses: actions/setup-dotnet@v5.2.0
       - name: Add Problem Matcher for dotnet-format
         run: echo "::add-matcher::.github/dotnet-format.json"
       - name: Lint
@@ -37,7 +37,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6.0.2
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v5.1.0
+        uses: actions/setup-dotnet@v5.2.0
         with:
           dotnet-version: ${{ vars.DOTNET_SDK_VERSIONS }}
           cache: true
@@ -64,7 +64,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6.0.2
       - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v5.1.0
+        uses: actions/setup-dotnet@v5.2.0
         with:
           dotnet-version: ${{ vars.DOTNET_SDK_VERSIONS }}
           cache: true
