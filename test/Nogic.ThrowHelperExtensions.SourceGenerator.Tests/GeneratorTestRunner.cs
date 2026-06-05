@@ -10,7 +10,8 @@ internal static class GeneratorTestRunner
 
     static GeneratorTestRunner()
     {
-        var references = AppDomain.CurrentDomain.GetAssemblies()
+        var references = AppDomain
+            .CurrentDomain.GetAssemblies()
             .Where(x => !x.IsDynamic && !string.IsNullOrWhiteSpace(x.Location))
             .Select(x => MetadataReference.CreateFromFile(x.Location))
             .ToList();
@@ -21,7 +22,10 @@ internal static class GeneratorTestRunner
         // Try to add System.Runtime reference if available
         try
         {
-            string systemRuntimePath = Path.Combine(Path.GetDirectoryName(typeof(object).Assembly.Location)!, "System.Runtime.dll");
+            string systemRuntimePath = Path.Combine(
+                Path.GetDirectoryName(typeof(object).Assembly.Location)!,
+                "System.Runtime.dll"
+            );
             if (File.Exists(systemRuntimePath))
                 references.Add(MetadataReference.CreateFromFile(systemRuntimePath));
         }
@@ -30,9 +34,11 @@ internal static class GeneratorTestRunner
             // Ignore if we can't find System.Runtime
         }
 
-        var compilation = CSharpCompilation.Create("generator_test",
+        var compilation = CSharpCompilation.Create(
+            "generator_test",
             references: references,
-            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+        );
 
         BaseCompilation = compilation;
     }
@@ -41,15 +47,20 @@ internal static class GeneratorTestRunner
         string source,
         LanguageVersion languageVersion = LanguageVersion.Preview,
         string generateAttributes = "true",
-        bool allowUnsafe = false)
+        bool allowUnsafe = false
+    )
     {
         var parseOptions = new CSharpParseOptions(languageVersion);
 
-        var driver = CSharpGeneratorDriver.Create(new ThrowHelperGenerator())
+        var driver = CSharpGeneratorDriver
+            .Create(new ThrowHelperGenerator())
             .WithUpdatedParseOptions(parseOptions);
 
         var compilationOptions = allowUnsafe
-            ? new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary, allowUnsafe: allowUnsafe)
+            ? new CSharpCompilationOptions(
+                OutputKind.DynamicallyLinkedLibrary,
+                allowUnsafe: allowUnsafe
+            )
             : BaseCompilation.Options;
 
         var inputCompilation = BaseCompilation
@@ -60,8 +71,9 @@ internal static class GeneratorTestRunner
         var optionsProvider = new TestAnalyzerConfigOptionsProvider(
             globalOptions: new Dictionary<string, string>
             {
-                ["build_property.ThrowHelperExtensionsGenerateAttributes"] = generateAttributes
-            });
+                ["build_property.ThrowHelperExtensionsGenerateAttributes"] = generateAttributes,
+            }
+        );
 
         driver = driver.WithUpdatedAnalyzerConfigOptions(optionsProvider);
 

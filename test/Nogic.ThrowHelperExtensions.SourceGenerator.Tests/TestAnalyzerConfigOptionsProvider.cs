@@ -10,10 +10,13 @@ internal class TestAnalyzerConfigOptionsProvider(Dictionary<string, string> glob
     : AnalyzerConfigOptionsProvider
 {
     private readonly TestAnalyzerConfigOptions globalOptions = new(globalOptions);
+
     /// <inheritdoc />
     public override AnalyzerConfigOptions GlobalOptions => this.globalOptions;
+
     /// <inheritdoc />
     public override AnalyzerConfigOptions GetOptions(SyntaxTree tree) => this.globalOptions;
+
     /// <inheritdoc />
     public override AnalyzerConfigOptions GetOptions(AdditionalText textFile) => this.globalOptions;
 }

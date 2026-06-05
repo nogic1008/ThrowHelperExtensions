@@ -6,7 +6,10 @@ namespace Nogic.ThrowHelperExtensions.SourceGenerator.Tests;
 [TestClass]
 public sealed class ExceptionPolyfillsBuilderTests
 {
-    [TestMethod($"{nameof(ExceptionPolyfillsBuilder)}.{nameof(ExceptionPolyfillsBuilder.Generate)}(<any>, <any>) > includes header, namespace and class declaration")]
+    private const string Generate =
+        $"{nameof(ExceptionPolyfillsBuilder)}.{nameof(ExceptionPolyfillsBuilder.Generate)}";
+
+    [TestMethod($"{Generate}(<any>, <any>) > includes header, namespace and class declaration")]
     [DataRow(TargetFramework.PreNet6)]
     [DataRow(TargetFramework.Net6)]
     [DataRow(TargetFramework.Net7)]
@@ -23,7 +26,7 @@ public sealed class ExceptionPolyfillsBuilderTests
         result.ShouldContain("internal static partial class ExceptionPolyfills");
     }
 
-    [TestMethod($"{nameof(ExceptionPolyfillsBuilder)}.{nameof(ExceptionPolyfillsBuilder.Generate)}(PreNet6, <any>) > generates all polyfills")]
+    [TestMethod($"{Generate}(PreNet6, <any>) > generates all polyfills")]
     public void Generate_PreNet6_Includes_All_Polyfills()
     {
         // Act
@@ -55,7 +58,7 @@ public sealed class ExceptionPolyfillsBuilderTests
         result.ShouldContain("public static void ThrowIfNegativeOrZero(int value");
     }
 
-    [TestMethod($"{nameof(ExceptionPolyfillsBuilder)}.{nameof(ExceptionPolyfillsBuilder.Generate)}(Net6, <any>) > generates expected polyfills")]
+    [TestMethod($"{Generate}(Net6, <any>) > generates expected polyfills")]
     public void Generate_Net6_Includes_Expected_Polyfills()
     {
         // Act
@@ -88,7 +91,7 @@ public sealed class ExceptionPolyfillsBuilderTests
         result.ShouldNotContain("INumberBase<T>");
     }
 
-    [TestMethod($"{nameof(ExceptionPolyfillsBuilder)}.{nameof(ExceptionPolyfillsBuilder.Generate)}(Net7, <any>) > generates expected polyfills")]
+    [TestMethod($"{Generate}(Net7, <any>) > generates expected polyfills")]
     public void Generate_Net7_Includes_Expected_Polyfills()
     {
         // Act
@@ -123,7 +126,7 @@ public sealed class ExceptionPolyfillsBuilderTests
         result.ShouldNotContain("public static void ThrowIfNegativeOrZero(int value");
     }
 
-    [TestMethod($"{nameof(ExceptionPolyfillsBuilder)}.{nameof(ExceptionPolyfillsBuilder.Generate)}(Net8OrGreater, <any>) > generates no polyfills")]
+    [TestMethod($"{Generate}(Net8OrGreater, <any>) > generates no polyfills")]
     public void Generate_Net8OrGreater_Excludes_All_Polyfills()
     {
         // Arrange - Act
@@ -136,7 +139,7 @@ public sealed class ExceptionPolyfillsBuilderTests
         result.ShouldNotContain("extension(global::System.ArgumentOutOfRangeException)");
     }
 
-    [TestMethod($"{nameof(ExceptionPolyfillsBuilder)}.{nameof(ExceptionPolyfillsBuilder.Generate)}(<any>, true) > generates unsafe polyfills")]
+    [TestMethod($"{Generate}(<any>, true) > generates unsafe polyfills")]
     [DataRow(TargetFramework.PreNet6, true)]
     [DataRow(TargetFramework.Net6, true)]
     public void Generate_Unsafe_Code_When(TargetFramework targetFramework, bool allowUnsafe)
@@ -149,7 +152,7 @@ public sealed class ExceptionPolyfillsBuilderTests
         result.ShouldContain("void* argument");
     }
 
-    [TestMethod($"{nameof(ExceptionPolyfillsBuilder)}.{nameof(ExceptionPolyfillsBuilder.Generate)}(<any>, false) > does not generate unsafe polyfills")]
+    [TestMethod($"{Generate}(<any>, false) > does not generate unsafe polyfills")]
     [DataRow(TargetFramework.PreNet6, false)]
     [DataRow(TargetFramework.Net6, false)]
     [DataRow(TargetFramework.Net7, true)]

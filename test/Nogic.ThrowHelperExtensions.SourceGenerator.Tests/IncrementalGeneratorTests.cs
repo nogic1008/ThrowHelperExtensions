@@ -11,19 +11,22 @@ public sealed class IncrementalGeneratorTests
 {
     // lang=C#-test
     private const string Source = """
-    namespace TestNamespace
-    {
-        public class TestClass
+        namespace TestNamespace
         {
+            public class TestClass
+            {
+            }
         }
-    }
-    """;
+        """;
 
     /// <summary>
     /// Determines if a type should be generated based on whether it's built into the framework.
     /// </summary>
     /// <param name="typeFullName">The full name of the type to check (including assembly name).</param>
-    private static void ShouldGeneratedOrBuiltIn(IEnumerable<GeneratedSourceResult> generatedSources, string typeFullName)
+    private static void ShouldGeneratedOrBuiltIn(
+        IEnumerable<GeneratedSourceResult> generatedSources,
+        string typeFullName
+    )
     {
         if (Type.GetType($"{typeFullName}, System.Runtime") is null)
             generatedSources.ShouldContain(s => s.HintName.Contains(typeFullName));
@@ -38,7 +41,9 @@ public sealed class IncrementalGeneratorTests
     [DataRow(LanguageVersion.CSharp11)]
     [DataRow(LanguageVersion.CSharp10)]
     [DataRow(LanguageVersion.CSharp6)]
-    public void Generator_Produces_No_Output_For_Old_CSharp_Versions(LanguageVersion languageVersion)
+    public void Generator_Produces_No_Output_For_Old_CSharp_Versions(
+        LanguageVersion languageVersion
+    )
     {
         // Arrange - Act - Use the actual old language version to test the generator's language version check
         var result = GeneratorTestRunner.RunGenerator(Source, languageVersion);
@@ -54,14 +59,18 @@ public sealed class IncrementalGeneratorTests
 
         // For old language versions (< C# 14), only EmbeddedAttribute should be generated
         generatedSources.ShouldContain(s => s.HintName.Contains("EmbeddedAttribute"));
-        generatedSources.ShouldNotContain(s => s.HintName.Contains("CallerArgumentExpressionAttribute"));
+        generatedSources.ShouldNotContain(s =>
+            s.HintName.Contains("CallerArgumentExpressionAttribute")
+        );
         generatedSources.ShouldNotContain(s => s.HintName.Contains("ExceptionPolyfills"));
     }
 
     /// <summary>
     /// Verifies that the generator does not produce unsafe-specific types when AllowUnsafe is false.
     /// </summary>
-    [TestMethod("Generator produces ExceptionPolyfills but not unsafe types when unsafe context is disabled")]
+    [TestMethod(
+        "Generator produces ExceptionPolyfills but not unsafe types when unsafe context is disabled"
+    )]
     public void Generator_Does_Not_Produce_Unsafe_Types_When_Unsafe_Context_Disabled()
     {
         // Arrange - Act
@@ -74,9 +83,18 @@ public sealed class IncrementalGeneratorTests
         generatedSources.ShouldContain(s => s.HintName.Contains("EmbeddedAttribute"));
         generatedSources.ShouldContain(s => s.HintName.Contains("ExceptionPolyfills"));
 
-        ShouldGeneratedOrBuiltIn(generatedSources, "System.Runtime.CompilerServices.CallerArgumentExpressionAttribute");
-        ShouldGeneratedOrBuiltIn(generatedSources, "System.Diagnostics.CodeAnalysis.NotNullAttribute");
-        ShouldGeneratedOrBuiltIn(generatedSources, "System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute");
+        ShouldGeneratedOrBuiltIn(
+            generatedSources,
+            "System.Runtime.CompilerServices.CallerArgumentExpressionAttribute"
+        );
+        ShouldGeneratedOrBuiltIn(
+            generatedSources,
+            "System.Diagnostics.CodeAnalysis.NotNullAttribute"
+        );
+        ShouldGeneratedOrBuiltIn(
+            generatedSources,
+            "System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute"
+        );
 
         // Unsafe types should NOT be generated when AllowUnsafe is false
         generatedSources.ShouldNotContain(s => s.SourceText.ToString().Contains("unsafe"));
@@ -85,7 +103,9 @@ public sealed class IncrementalGeneratorTests
     /// <summary>
     /// Verifies that the generator produces unsafe-specific types when AllowUnsafe is true.
     /// </summary>
-    [TestMethod("Generator produces ExceptionPolyfills with unsafe types when unsafe context is enabled")]
+    [TestMethod(
+        "Generator produces ExceptionPolyfills with unsafe types when unsafe context is enabled"
+    )]
     public void Generator_Produces_Unsafe_Types_When_Unsafe_Context_Enabled()
     {
         // Arrange - Act
@@ -98,9 +118,18 @@ public sealed class IncrementalGeneratorTests
         generatedSources.ShouldContain(s => s.HintName.Contains("EmbeddedAttribute"));
         generatedSources.ShouldContain(s => s.HintName.Contains("ExceptionPolyfills"));
 
-        ShouldGeneratedOrBuiltIn(generatedSources, "System.Runtime.CompilerServices.CallerArgumentExpressionAttribute");
-        ShouldGeneratedOrBuiltIn(generatedSources, "System.Diagnostics.CodeAnalysis.NotNullAttribute");
-        ShouldGeneratedOrBuiltIn(generatedSources, "System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute");
+        ShouldGeneratedOrBuiltIn(
+            generatedSources,
+            "System.Runtime.CompilerServices.CallerArgumentExpressionAttribute"
+        );
+        ShouldGeneratedOrBuiltIn(
+            generatedSources,
+            "System.Diagnostics.CodeAnalysis.NotNullAttribute"
+        );
+        ShouldGeneratedOrBuiltIn(
+            generatedSources,
+            "System.Diagnostics.CodeAnalysis.DoesNotReturnAttribute"
+        );
 
         // Unsafe types SHOULD be generated when AllowUnsafe is true
         // Check that the ExceptionPolyfills file contains unsafe code
@@ -127,7 +156,9 @@ public sealed class IncrementalGeneratorTests
         generatedSources.ShouldContain(s => s.HintName.Contains("ExceptionPolyfills"));
 
         // But other attributes should not be generated
-        generatedSources.ShouldNotContain(s => s.HintName.Contains("CallerArgumentExpressionAttribute"));
+        generatedSources.ShouldNotContain(s =>
+            s.HintName.Contains("CallerArgumentExpressionAttribute")
+        );
         generatedSources.ShouldNotContain(s => s.HintName.Contains("NotNullAttribute"));
         generatedSources.ShouldNotContain(s => s.HintName.Contains("DoesNotReturnAttribute"));
     }
@@ -135,15 +166,33 @@ public sealed class IncrementalGeneratorTests
     /// <summary>
     /// Verifies that GetTargetFrameworkFromSymbols correctly detects framework versions.
     /// </summary>
-    [TestMethod("GetTargetFrameworkFromSymbols detects framework version from preprocessor symbols")]
+    [TestMethod(
+        "GetTargetFrameworkFromSymbols detects framework version from preprocessor symbols"
+    )]
     [DataRow((string[])[], TargetFramework.PreNet6)]
     [DataRow((string[])["NET5_0"], TargetFramework.PreNet6)]
     [DataRow((string[])["NETSTANDARD2_1"], TargetFramework.PreNet6)]
     [DataRow((string[])["NET6_0", "NET6_0_OR_GREATER"], TargetFramework.Net6)]
     [DataRow((string[])["NET7_0", "NET6_0_OR_GREATER", "NET7_0_OR_GREATER"], TargetFramework.Net7)]
-    [DataRow((string[])["NET8_0", "NET6_0_OR_GREATER", "NET7_0_OR_GREATER", "NET8_0_OR_GREATER"], TargetFramework.Net8OrGreater)]
-    [DataRow((string[])["NET9_0", "NET6_0_OR_GREATER", "NET7_0_OR_GREATER", "NET8_0_OR_GREATER", "NET9_0_OR_GREATER"], TargetFramework.Net8OrGreater)]
-    public void GetTargetFrameworkFromSymbols_Detects_Framework_Version(string[] symbols, TargetFramework expected)
+    [DataRow(
+        (string[])["NET8_0", "NET6_0_OR_GREATER", "NET7_0_OR_GREATER", "NET8_0_OR_GREATER"],
+        TargetFramework.Net8OrGreater
+    )]
+    [DataRow(
+        (string[])
+            [
+                "NET9_0",
+                "NET6_0_OR_GREATER",
+                "NET7_0_OR_GREATER",
+                "NET8_0_OR_GREATER",
+                "NET9_0_OR_GREATER",
+            ],
+        TargetFramework.Net8OrGreater
+    )]
+    public void GetTargetFrameworkFromSymbols_Detects_Framework_Version(
+        string[] symbols,
+        TargetFramework expected
+    )
     {
         // Arrange - Act
         var result = ThrowHelperGenerator.GetTargetFrameworkFromSymbols(symbols);
@@ -161,20 +210,20 @@ public sealed class IncrementalGeneratorTests
         // Arrange - Act
         // lang=C#-test
         const string sourceWithExistingType = """
-        namespace System
-        {
-            public static class ExceptionPolyfills
+            namespace System
             {
-                public static void ThrowIfNull(object argument) => throw new System.ArgumentNullException();
+                public static class ExceptionPolyfills
+                {
+                    public static void ThrowIfNull(object argument) => throw new System.ArgumentNullException();
+                }
             }
-        }
-        namespace TestNamespace
-        {
-            public class TestClass
+            namespace TestNamespace
             {
+                public class TestClass
+                {
+                }
             }
-        }
-        """;
+            """;
 
         var result = GeneratorTestRunner.RunGenerator(sourceWithExistingType);
 
@@ -189,4 +238,3 @@ public sealed class IncrementalGeneratorTests
         generatedSources.ShouldNotContain(s => s.HintName.Contains("ExceptionPolyfills"));
     }
 }
-

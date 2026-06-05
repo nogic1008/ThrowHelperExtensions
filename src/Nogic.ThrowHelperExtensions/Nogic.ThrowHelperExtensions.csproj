@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <IsRoslynComponent>true</IsRoslynComponent>
@@ -23,7 +22,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" VersionOverride="4.14.0" PrivateAssets="all" />
+    <PackageReference
+      Include="Microsoft.CodeAnalysis.CSharp"
+      VersionOverride="4.14.0"
+      PrivateAssets="all"
+    />
     <PackageReference Include="Microsoft.Sbom.Targets">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -31,8 +34,23 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-    <None Include="Nogic.ThrowHelperExtensions.props" Pack="true" PackagePath="build" Visible="false" />
-    <None Include="Nogic.ThrowHelperExtensions.props" Pack="true" PackagePath="buildTransitive" Visible="false" />
+    <None
+      Include="$(OutputPath)\$(AssemblyName).dll"
+      Pack="true"
+      PackagePath="analyzers/dotnet/cs"
+      Visible="false"
+    />
+    <None
+      Include="Nogic.ThrowHelperExtensions.props"
+      Pack="true"
+      PackagePath="build"
+      Visible="false"
+    />
+    <None
+      Include="Nogic.ThrowHelperExtensions.props"
+      Pack="true"
+      PackagePath="buildTransitive"
+      Visible="false"
+    />
   </ItemGroup>
 </Project>
