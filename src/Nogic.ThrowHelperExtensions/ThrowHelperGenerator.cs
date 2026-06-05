@@ -13,7 +13,10 @@ namespace Nogic.ThrowHelperExtensions;
 public class ThrowHelperGenerator : IIncrementalGenerator
 {
     private const LanguageVersion MinimumRequiredLanguageVersion = (LanguageVersion)1400; // C# 14.0
-    private static readonly Regex EmbeddedResourceNameToFullyQualifiedTypeNameRegex = new(@"^Nogic\.ThrowHelperExtensions\.EmbeddedResources\.(\w+(?:\.\w+)+)\.cs$", RegexOptions.Compiled);
+    private static readonly Regex EmbeddedResourceNameToFullyQualifiedTypeNameRegex = new(
+        @"^Nogic\.ThrowHelperExtensions\.EmbeddedResources\.(\w+(?:\.\w+)+)\.cs$",
+        RegexOptions.Compiled
+    );
 
     /// <summary>
     /// Diagnostic descriptor for C# language version warning.
@@ -31,10 +34,15 @@ public class ThrowHelperGenerator : IIncrementalGenerator
     /// <summary>
     /// Dictionary of embedded resource names mapped to their fully qualified type names.
     /// </summary>
-    public static readonly ImmutableDictionary<string, string> EmbeddedResources = ImmutableDictionary.CreateRange(
-        typeof(ThrowHelperGenerator).Assembly.GetManifestResourceNames()
-            .Select(n => new KeyValuePair<string, string>(EmbeddedResourceNameToFullyQualifiedTypeNameRegex.Match(n).Groups[1].Value, n))
-    );
+    public static readonly ImmutableDictionary<string, string> EmbeddedResources =
+        ImmutableDictionary.CreateRange(
+            typeof(ThrowHelperGenerator)
+                .Assembly.GetManifestResourceNames()
+                .Select(n => new KeyValuePair<string, string>(
+                    EmbeddedResourceNameToFullyQualifiedTypeNameRegex.Match(n).Groups[1].Value,
+                    n
+                ))
+        );
 
     /// <summary>
     /// Cache for source texts of generated types.
@@ -48,35 +56,57 @@ public class ThrowHelperGenerator : IIncrementalGenerator
         context.RegisterPostInitializationOutput(i => i.AddEmbeddedAttributeDefinition());
 
         // Check C# language version and report warning if needed
-        var languageVersionProvider = context.CompilationProvider.Select(static (compilation, token) =>
-        {
-            token.ThrowIfCancellationRequested();
-            return ((CSharpCompilation)compilation).LanguageVersion;
-        });
-        context.RegisterSourceOutput(languageVersionProvider, static (context, languageVersion) =>
-        {
-            if (languageVersion < MinimumRequiredLanguageVersion)
+        var languageVersionProvider = context.CompilationProvider.Select(
+            static (compilation, token) =>
             {
-                var diagnostic = Diagnostic.Create(CSharpVersionWarning, Location.None, languageVersion.ToDisplayString());
-                context.ReportDiagnostic(diagnostic);
+                token.ThrowIfCancellationRequested();
+                return ((CSharpCompilation)compilation).LanguageVersion;
             }
-        });
+        );
+        context.RegisterSourceOutput(
+            languageVersionProvider,
+            static (context, languageVersion) =>
+            {
+                if (languageVersion < MinimumRequiredLanguageVersion)
+                {
+                    var diagnostic = Diagnostic.Create(
+                        CSharpVersionWarning,
+                        Location.None,
+                        languageVersion.ToDisplayString()
+                    );
+                    context.ReportDiagnostic(diagnostic);
+                }
+            }
+        );
 
         // Generate necessary attributes
-        var buildOptions = context.AnalyzerConfigOptionsProvider.Select(static (options, token) =>
-        {
-            token.ThrowIfCancellationRequested();
-            var globalOptions = options.GlobalOptions;
-            bool generateAttributes = true;
+        var buildOptions = context.AnalyzerConfigOptionsProvider.Select(
+            static (options, token) =>
+            {
+                token.ThrowIfCancellationRequested();
+                var globalOptions = options.GlobalOptions;
+                bool generateAttributes = true;
 
-            // Try to read the build property
-            if (globalOptions.TryGetValue("build_property.ThrowHelperExtensionsGenerateAttributes", out string? generateValue))
-                generateAttributes = !string.Equals(generateValue, "false", StringComparison.OrdinalIgnoreCase);
+                // Try to read the build property
+                if (
+                    globalOptions.TryGetValue(
+                        "build_property.ThrowHelperExtensionsGenerateAttributes",
+                        out string? generateValue
+                    )
+                )
+                {
+                    generateAttributes = !string.Equals(
+                        generateValue,
+                        "false",
+                        StringComparison.OrdinalIgnoreCase
+                    );
+                }
 
-            return generateAttributes;
-        });
-        var compilationWithConfig = context.CompilationProvider
-            .Combine(buildOptions)
+                return generateAttributes;
+            }
+        );
+        var compilationWithConfig = context
+            .CompilationProvider.Combine(buildOptions)
             .WithComparer(CompilationConfigComparer.Instance);
         // Attribute types to generate
         var attributeTypes = compilationWithConfig
@@ -96,16 +126,25 @@ public class ThrowHelperGenerator : IIncrementalGenerator
     /// <param name="config">A tuple containing the compilation and whether to generate attributes.</param>
     /// <param name="token">Cancellation token to monitor for cancellation requests.</param>
     /// <returns>An immutable array of fully qualified type names that need to be generated.</returns>
-    private static ImmutableArray<string> GetAttributeTypes((Compilation compilation, bool generateAttributes) config, CancellationToken token)
+    private static ImmutableArray<string> GetAttributeTypes(
+        (Compilation compilation, bool generateAttributes) config,
+        CancellationToken token
+    )
     {
         token.ThrowIfCancellationRequested();
 
         // Skip if disabled on property or C# version is 13 or lower
-        if (!config.generateAttributes || ((CSharpCompilation)config.compilation).LanguageVersion < MinimumRequiredLanguageVersion)
+        if (
+            !config.generateAttributes
+            || ((CSharpCompilation)config.compilation).LanguageVersion
+                < MinimumRequiredLanguageVersion
+        )
+        {
             return ImmutableArray<string>.Empty;
+        }
 
-        return EmbeddedResources.Keys
-            .Where(n => !IsTypeAlreadyExists(config.compilation, n, token))
+        return EmbeddedResources
+            .Keys.Where(n => !IsTypeAlreadyExists(config.compilation, n, token))
             .ToImmutableArray();
     }
 
@@ -118,7 +157,11 @@ public class ThrowHelperGenerator : IIncrementalGenerator
     /// <remarks>
     /// This method cannot check other source generator's outputs because they are processed on other steps.
     /// </remarks>
-    private static bool IsTypeAlreadyExists(Compilation compilation, string fullTypeName, CancellationToken token)
+    private static bool IsTypeAlreadyExists(
+        Compilation compilation,
+        string fullTypeName,
+        CancellationToken token
+    )
     {
         token.ThrowIfCancellationRequested();
 
@@ -149,7 +192,9 @@ public class ThrowHelperGenerator : IIncrementalGenerator
         if (!this.manifestSources.TryGetValue(typeName, out var sourceText))
         {
             string resource = EmbeddedResources[typeName];
-            using var stream = typeof(ThrowHelperGenerator).Assembly.GetManifestResourceStream(resource);
+            using var stream = typeof(ThrowHelperGenerator).Assembly.GetManifestResourceStream(
+                resource
+            );
             sourceText = SourceText.From(stream, Encoding.UTF8, canBeEmbedded: true);
 
             _ = this.manifestSources.TryAdd(typeName, sourceText);
@@ -172,11 +217,17 @@ public class ThrowHelperGenerator : IIncrementalGenerator
             return;
 
         // Check if polyfill type already exists
-        if (IsTypeAlreadyExists(compilation, "System.ExceptionPolyfills", context.CancellationToken))
+        if (
+            IsTypeAlreadyExists(compilation, "System.ExceptionPolyfills", context.CancellationToken)
+        )
+        {
             return;
+        }
 
         var parseOptions = compilation.SyntaxTrees.FirstOrDefault()?.Options as CSharpParseOptions;
-        var targetFramework = GetTargetFrameworkFromSymbols(parseOptions?.PreprocessorSymbolNames ?? []);
+        var targetFramework = GetTargetFrameworkFromSymbols(
+            parseOptions?.PreprocessorSymbolNames ?? []
+        );
         bool allowUnsafe = ((CSharpCompilation)compilation).Options.AllowUnsafe;
         string source = ExceptionPolyfillsBuilder.Generate(targetFramework, allowUnsafe);
         var sourceText = SourceText.From(source, Encoding.UTF8);
@@ -204,12 +255,17 @@ public class ThrowHelperGenerator : IIncrementalGenerator
     /// Comparer for compilation and build options tuple to optimize incremental generation.
     /// </summary>
     [ExcludeFromCodeCoverage]
-    private sealed class CompilationConfigComparer : IEqualityComparer<(Compilation compilation, bool generateAttributes)>
+    private sealed class CompilationConfigComparer
+        : IEqualityComparer<(Compilation compilation, bool generateAttributes)>
     {
         public static readonly CompilationConfigComparer Instance = new();
 
-        public bool Equals((Compilation compilation, bool generateAttributes) x, (Compilation compilation, bool generateAttributes) y) =>
-            x.generateAttributes == y.generateAttributes && ReferenceEquals(x.compilation, y.compilation);
+        public bool Equals(
+            (Compilation compilation, bool generateAttributes) x,
+            (Compilation compilation, bool generateAttributes) y
+        ) =>
+            x.generateAttributes == y.generateAttributes
+            && ReferenceEquals(x.compilation, y.compilation);
 
         public int GetHashCode((Compilation compilation, bool generateAttributes) obj)
         {
@@ -228,7 +284,8 @@ public class ThrowHelperGenerator : IIncrementalGenerator
     {
         public static readonly TypeNamesComparer Instance = new();
 
-        public bool Equals(ImmutableArray<string> x, ImmutableArray<string> y) => x.SequenceEqual(y);
+        public bool Equals(ImmutableArray<string> x, ImmutableArray<string> y) =>
+            x.SequenceEqual(y);
 
         public int GetHashCode(ImmutableArray<string> obj)
         {
@@ -250,10 +307,13 @@ public enum TargetFramework
 {
     /// <summary>Before .NET 6.0 (.NET 5.0 and earlier, .NET Standard 2.1 and earlier)</summary>
     PreNet6 = 0,
+
     /// <summary>.NET 6.0</summary>
     Net6 = 6,
+
     /// <summary>.NET 7.0</summary>
     Net7 = 7,
+
     /// <summary>.NET 8.0 or greater</summary>
     Net8OrGreater = 8,
 }

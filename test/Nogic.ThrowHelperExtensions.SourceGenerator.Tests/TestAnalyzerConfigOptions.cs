@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace Nogic.ThrowHelperExtensions.SourceGenerator.Tests;
@@ -5,11 +6,10 @@ namespace Nogic.ThrowHelperExtensions.SourceGenerator.Tests;
 /// <summary>
 /// Test implementation of analyzer config options.
 /// </summary>
-internal class TestAnalyzerConfigOptions(Dictionary<string, string> options)
-    : AnalyzerConfigOptions
+internal class TestAnalyzerConfigOptions(Dictionary<string, string> options) : AnalyzerConfigOptions
 {
 #nullable disable warnings
-    public override bool TryGetValue(string key, out string? value)
+    public override bool TryGetValue(string key, out string? value) =>
 #nullable restore warnings
-        => options.TryGetValue(key, out value);
+        options.TryGetValue(key, out value);
 }
