@@ -11,10 +11,6 @@ env:
   DOTNET_NOLOGO: true
   NUGET_XMLDOC_MODE: skip
   NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
-  DOTNET_SDK_VERSIONS: |
-    10.x
-    7.x
-    6.x
 
 jobs:
   lint:
@@ -31,24 +27,6 @@ jobs:
         run: echo "::add-matcher::.github/dotnet-format.json"
       - name: Lint
         run: dotnet format --verify-no-changes --verbosity detailed
-
-  validate:
-    name: Validate NuGet Lock Files
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-
-    steps:
-      - uses: actions/checkout@v6.0.2
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v5.3.0
-        with:
-          dotnet-version: ${{ env.DOTNET_SDK_VERSIONS }}
-          cache: true
-          cache-dependency-path: '**/packages.lock.json'
-
-      - name: Restore with lock files
-        run: dotnet restore --locked-mode
 
   test:
     name: Debug Build & Test
@@ -70,9 +48,12 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v5.3.0
         with:
-          dotnet-version: ${{ env.DOTNET_SDK_VERSIONS }}
+          dotnet-version: |
+            10.x
+            7.x
+            6.x
           cache: true
-          cache-dependency-path: '**/packages.lock.json'
+          cache-dependency-path: Directory.Packages.props
 
       - name: Restore
         run: dotnet restore
@@ -83,6 +64,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v6.0.0
+        if: ${{ !cancelled() }}
         with:
           use_oidc: true
           flags: ${{ runner.os }},${{ matrix.framework }}

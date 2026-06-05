@@ -17,18 +17,23 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write  # enable GitHub OIDC token issuance
+      attestations: write
+      contents: read
 
     steps:
       - uses: actions/checkout@v6.0.2
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v5.3.0
         with:
-          dotnet-version: ${{ vars.DOTNET_SDK_VERSIONS }}
+          dotnet-version: |
+            10.x
+            7.x
+            6.x
           cache: true
-          cache-dependency-path: '**/packages.lock.json'
+          cache-dependency-path: Directory.Packages.props
 
       - name: Login to NuGet (with OIDC)
-        uses: NuGet/login@v1
+        uses: NuGet/login@8d196754b4036150537f80ac539e15c2f1028841 #v1.2.0
         id: login
         with:
           user: ${{ vars.NUGET_USER_NAME }}
@@ -39,6 +44,11 @@ jobs:
         run: dotnet pack --configuration Release --no-restore --output nupkgs -p:Version=${TAG_VERSION:1}
         env:
           TAG_VERSION: ${{ github.event.release.tag_name }} # v0.0.0-abc
+
+      - name: Generate Attestation for packages
+        uses: actions/attest@v4.1.0
+        with:
+          subject-path: "nupkgs/*.nupkg"
 
       - name: Publish to NuGet
         run: dotnet nuget push "nupkgs/*.nupkg" --source https://api.nuget.org/v3/index.json --api-key ${{ steps.login.outputs.NUGET_API_KEY }}

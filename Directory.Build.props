@@ -14,5 +14,11 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <SuppressTfmSupportBuildWarnings Condition="!$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net9.0'))">true</SuppressTfmSupportBuildWarnings>
+
+    <!-- Microsoft.Sbom.Targets Options -->
+    <GenerateSBOM>true</GenerateSBOM>
+    <SbomGenerationFetchLicenseInformation>true</SbomGenerationFetchLicenseInformation>
+    <SbomGenerationEnablePackageMetadataParsing>true</SbomGenerationEnablePackageMetadataParsing>
+    <SbomGenerationManifestInfo>SPDX:2.2</SbomGenerationManifestInfo>
   </PropertyGroup>
 </Project>
