@@ -1,53 +1,57 @@
 # Please see the documentation for all configuration options:
-# https://help.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+# https://docs.github.com/code-security/reference/supply-chain-security/dependabot-options-reference
 
 version: 2
 updates:
   # NuGet (/*.csproj)
   - package-ecosystem: nuget
-    directory: '/'
+    directory: /
     schedule:
       interval: daily
       time: '08:00'
       timezone: Japan
+    cooldown:
+      default-days: 5
+      semver-major-days: 10
+      semver-minor-days: 5
+      semver-patch-days: 3
+    groups:
+      test-deps:
+        patterns:
+          - Polyfill
+          - PolySharp
+          - TUnit
+    ignore:
+      # Pin source generators to support older .NET SDKs and Visual Studio versions
+      - dependency-name: Microsoft.CodeAnalysis.CSharp
     labels:
       - 'dependabot :robot:'
     commit-message:
-      prefix: fix
-      prefix-development: chore
-      include: scope
+      prefix: chore(deps)
 
   # GitHub Actions (/.github/workflows/*.yml)
   - package-ecosystem: github-actions
-    directory: '/'
+    directory: /
     schedule:
       interval: daily
       time: '08:00'
       timezone: Japan
+    cooldown:
+      default-days: 5
     labels:
       - 'dependabot :robot:'
     commit-message:
       prefix: ci(gh-actions)
 
-  # .NET SDK (/global.json)
-  - package-ecosystem: dotnet-sdk
-    directory: '/'
-    schedule:
-      interval: daily
-      time: '08:00'
-      timezone: Japan
-    labels:
-      - 'dependabot :robot:'
-    commit-message:
-      prefix: build(dotnet-sdk)
-
- # Dev container (/.devcontainer/devcontainer.json)
+  # Dev container (/.devcontainer/devcontainer.json)
   - package-ecosystem: devcontainers
     directory: '/'
     schedule:
       interval: daily
       time: '08:00'
       timezone: Japan
+    cooldown:
+      default-days: 5
     labels:
       - 'dependabot :robot:'
     commit-message:
