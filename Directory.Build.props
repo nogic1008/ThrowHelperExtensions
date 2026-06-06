@@ -2,7 +2,7 @@
   <PropertyGroup>
     <!-- Meta Options -->
     <Authors>Nogic</Authors>
-    <Copyright>©2025 Nogic</Copyright>
+    <Copyright>©2025-2026 Nogic</Copyright>
     <PackageProjectUrl>https://github.com/nogic1008/ThrowHelperExtensions</PackageProjectUrl>
     <RepositoryUrl>$(PackageProjectUrl)</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

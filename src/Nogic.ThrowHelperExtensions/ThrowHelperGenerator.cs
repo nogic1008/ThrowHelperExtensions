@@ -28,8 +28,17 @@ public class ThrowHelperGenerator : IIncrementalGenerator
         category: "Usage",
         defaultSeverity: DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
-        helpLinkUri: "https://github.com/nogic1008/ThrowHelperExtensions/blob/v1.0.0/README.md#usage"
+        helpLinkUri: CreateUsageHelpLinkUri()
     );
+
+    private static string CreateUsageHelpLinkUri()
+    {
+        var version = typeof(ThrowHelperGenerator).Assembly.GetName().Version;
+        string versionTag = version is null
+            ? "main"
+            : $"v{version.Major}.{version.Minor}.{version.Build}";
+        return $"https://github.com/nogic1008/ThrowHelperExtensions/blob/{versionTag}/README.md#usage";
+    }
 
     /// <summary>
     /// Dictionary of embedded resource names mapped to their fully qualified type names.
