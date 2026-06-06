@@ -5,112 +5,124 @@ namespace Nogic.ThrowHelperExtensions.IntegrationTests;
 /// <summary>
 /// Unit test class for <see cref="ExceptionPolyfills"/>
 /// </summary>
-[TestClass]
 public sealed class ExceptionPolyfillsTest
 {
-    /// <summary>
-    /// Asserts that <paramref name="action"/> does not throw any exceptions.
-    /// </summary>
-    private static void ShouldNotThrow(Action action) => action.ShouldNotThrow();
-
-    /// <summary>
-    /// Asserts that <paramref name="action"/> throws an exception of type <typeparamref name="TException"/>.
-    /// </summary>
-    private static TException ShouldThrow<TException>(Action action)
-        where TException : Exception => action.ShouldThrow<TException>();
-
     #region ArgumentException
-    [TestMethod(
+    [Test]
+    [DisplayName(
         $"{nameof(ArgumentException)}.ThrowIfNullOrEmpty(null) throws {nameof(ArgumentNullException)}"
     )]
-    public void When_Argument_Is_Null_ThrowIfNullOrEmpty_Throws_ArgumentNullException()
+    public async ValueTask When_Argument_Is_Null_ThrowIfNullOrEmpty_Throws_ArgumentNullException()
     {
         // Arrange
         string? argument = null;
 
         // Act - Assert
-        ShouldThrow<ArgumentNullException>(() => ArgumentException.ThrowIfNullOrEmpty(argument))
-            .ParamName.ShouldBe(nameof(argument));
+        await Assert
+            .That(() => ArgumentException.ThrowIfNullOrEmpty(argument))
+            .ThrowsExactly<ArgumentNullException>()
+            .And.WithParameterName(nameof(argument));
     }
 
-    [TestMethod(
+    [Test]
+    [DisplayName(
         $"{nameof(ArgumentException)}.ThrowIfNullOrEmpty(\"\") throws {nameof(ArgumentException)}"
     )]
-    public void When_Argument_Is_Empty_String_ThrowIfNullOrEmpty_Throws_ArgumentException()
+    public async ValueTask When_Argument_Is_Empty_String_ThrowIfNullOrEmpty_Throws_ArgumentException()
     {
         // Arrange
         string? argument = "";
 
         // Act - Assert
-        ShouldThrow<ArgumentException>(() => ArgumentException.ThrowIfNullOrEmpty(argument))
-            .ParamName.ShouldBe(nameof(argument));
+        await Assert
+            .That(() => ArgumentException.ThrowIfNullOrEmpty(argument))
+            .ThrowsExactly<ArgumentException>()
+            .WithParameterName(nameof(argument));
     }
 
-    [TestMethod(
-        $"{nameof(ArgumentException)}.ThrowIfNullOrEmpty(\"foo\") does not throw any {nameof(Exception)}"
+    [Test]
+    [DisplayName(
+        $"{nameof(ArgumentException)}.ThrowIfNullOrEmpty(\"$argument\") does not throw any Exception"
     )]
-    public void When_Argument_Is_Not_Empty_String_ThrowIfNullOrEmpty_Does_Not_Throw_Exception() =>
-        ShouldNotThrow(static () => ArgumentException.ThrowIfNullOrEmpty("foo"));
+    [Arguments(" ")]
+    [Arguments("foo")]
+    public async ValueTask When_Argument_Is_Not_Empty_String_ThrowIfNullOrEmpty_Does_Not_Throw_Exception(
+        string argument
+    ) => await Assert.That(() => ArgumentException.ThrowIfNullOrEmpty(argument)).ThrowsNothing();
 
-    [TestMethod(
+    [Test]
+    [DisplayName(
         $"{nameof(ArgumentException)}.ThrowIfNullOrWhiteSpace(null) throws {nameof(ArgumentNullException)}"
     )]
-    public void When_Argument_Is_Null_ThrowIfNullOrWhiteSpace_Throws_ArgumentNullException()
+    public async ValueTask When_Argument_Is_Null_ThrowIfNullOrWhiteSpace_Throws_ArgumentNullException()
     {
         // Arrange
         string? argument = null;
 
         // Act - Assert
-        ShouldThrow<ArgumentNullException>(() =>
-            ArgumentException.ThrowIfNullOrWhiteSpace(argument)
-        )
-            .ParamName.ShouldBe(nameof(argument));
+        await Assert
+            .That(() => ArgumentException.ThrowIfNullOrWhiteSpace(argument))
+            .ThrowsExactly<ArgumentNullException>()
+            .WithParameterName(nameof(argument));
     }
 
-    [TestMethod(
-        $"{nameof(ArgumentException)}.ThrowIfNullOrWhiteSpace(<white space>) throws {nameof(ArgumentException)}"
+    [Test]
+    [DisplayName(
+        $"{nameof(ArgumentException)}.ThrowIfNullOrWhiteSpace(\"$argument\") throws {nameof(ArgumentException)}"
     )]
-    [DataRow("")]
-    [DataRow(" ")]
-    [DataRow("　")]
-    public void When_Argument_Is_WhiteSpace_ThrowIfNullOrWhiteSpace_Throws_ArgumentException(
+    [Arguments("")]
+    [Arguments(" ")]
+    [Arguments("　")]
+    public async ValueTask When_Argument_Is_WhiteSpace_ThrowIfNullOrWhiteSpace_Throws_ArgumentException(
         string argument
     ) =>
-        ShouldThrow<ArgumentException>(() => ArgumentException.ThrowIfNullOrWhiteSpace(argument))
-            .ParamName.ShouldBe(nameof(argument));
+        await Assert
+            .That(() => ArgumentException.ThrowIfNullOrWhiteSpace(argument))
+            .ThrowsExactly<ArgumentException>()
+            .WithParameterName(nameof(argument));
 
-    [TestMethod(
-        $"{nameof(ArgumentException)}.ThrowIfNullOrWhiteSpace(\"foo\") does not throw any {nameof(Exception)}"
+    [Test]
+    [DisplayName(
+        $"{nameof(ArgumentException)}.ThrowIfNullOrWhiteSpace(\"$argument\") does not throw any Exception"
     )]
-    public void When_Argument_Is_Not_WhiteSpace_ThrowIfNullOrWhiteSpace_Does_Not_Throw_Exception() =>
-        ShouldNotThrow(static () => ArgumentException.ThrowIfNullOrWhiteSpace("foo"));
+    [Arguments("foo")]
+    public async ValueTask When_Argument_Is_Not_WhiteSpace_ThrowIfNullOrWhiteSpace_Does_Not_Throw_Exception(
+        string argument
+    ) =>
+        await Assert
+            .That(() => ArgumentException.ThrowIfNullOrWhiteSpace(argument))
+            .ThrowsNothing();
     #endregion ArgumentException
 
     #region ArgumentNullException
-    [TestMethod(
+    [Test]
+    [DisplayName(
         $"{nameof(ArgumentNullException)}.ThrowIfNull(null) throws {nameof(ArgumentNullException)}"
     )]
-    public void When_Argument_Is_Null_ThrowIfNull_Throws_ArgumentNullException()
+    public async ValueTask When_Argument_Is_Null_ThrowIfNull_Throws_ArgumentNullException()
     {
         // Arrange
         object? argument = null;
 
         // Act - Assert
-        ShouldThrow<ArgumentNullException>(() => ArgumentNullException.ThrowIfNull(argument))
-            .ParamName.ShouldBe(nameof(argument));
+        await Assert
+            .That(() => ArgumentNullException.ThrowIfNull(argument))
+            .ThrowsExactly<ArgumentNullException>()
+            .WithParameterName(nameof(argument));
     }
 
-    [TestMethod(
-        $"{nameof(ArgumentNullException)}.ThrowIfNull(<not null>) does not throw any {nameof(Exception)}"
+    [Test]
+    [DisplayName(
+        $"{nameof(ArgumentNullException)}.ThrowIfNull($argument) does not throw any Exception"
     )]
-    public void When_Argument_Is_Not_Null_ThrowIfNull_Does_Not_Throw_Exception() =>
-#pragma warning disable IDE0079 // Remove unnecessary suppression
-#pragma warning disable CA2264 // Do not pass a non-nullable value to 'ArgumentNullException.ThrowIfNull'
-        ShouldNotThrow(static () => ArgumentNullException.ThrowIfNull(new object()));
-#pragma warning restore CA2264 // Do not pass a non-nullable value to 'ArgumentNullException.ThrowIfNull'
-#pragma warning restore IDE0079 // Remove unnecessary suppression
+    [Arguments("")]
+    [Arguments(0)]
+    public async ValueTask When_Argument_Is_Not_Null_ThrowIfNull_Does_Not_Throw_Exception(
+        object? argument
+    ) => await Assert.That(() => ArgumentNullException.ThrowIfNull(argument)).ThrowsNothing();
 
-    [TestMethod(
+    [Test]
+    [DisplayName(
         $"{nameof(ArgumentNullException)}.ThrowIfNull(<null pointer>) throws {nameof(ArgumentNullException)}"
     )]
     public unsafe void When_Argument_Is_Null_Pointer_ThrowIfNull_Throws_ArgumentNullException()
@@ -119,12 +131,19 @@ public sealed class ExceptionPolyfillsTest
         void* argument = null;
 
         // Act - Assert
-        ShouldThrow<ArgumentNullException>(() => ArgumentNullException.ThrowIfNull(argument))
-            .ParamName.ShouldBe(nameof(argument));
+#pragma warning disable TUnitAssertions0002
+        Assert
+            .That(() => ArgumentNullException.ThrowIfNull(argument))
+            .ThrowsExactly<ArgumentNullException>()
+            .WithParameterName(nameof(argument))
+            .GetAwaiter()
+            .GetResult();
+#pragma warning restore TUnitAssertions0002
     }
 
-    [TestMethod(
-        $"{nameof(ArgumentNullException)}.ThrowIfNull(<pointer>) does not throw any {nameof(Exception)}"
+    [Test]
+    [DisplayName(
+        $"{nameof(ArgumentNullException)}.ThrowIfNull(<pointer>) does not throw any Exception"
     )]
     public unsafe void When_Argument_Is_Pointer_ThrowIfNull_Does_Not_Throw_Exception()
     {
@@ -132,661 +151,568 @@ public sealed class ExceptionPolyfillsTest
         int* argument = stackalloc int[1];
 
         // Act - Assert
-        ShouldNotThrow(() => ArgumentNullException.ThrowIfNull(argument));
+#pragma warning disable TUnitAssertions0002
+        Assert.That(() => ArgumentNullException.ThrowIfNull(argument)).ThrowsNothing();
+#pragma warning restore TUnitAssertions0002
     }
     #endregion ArgumentNullException
 
     #region ArgumentOutOfRangeException
-    [TestMethod(
-        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfEqual() throws {nameof(ArgumentOutOfRangeException)}"
+    [Test]
+    [DisplayName(
+        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfEqual($value, $other) throws {nameof(ArgumentOutOfRangeException)}"
     )]
-    [DataRow(1, 1)]
-    [DataRow("foo", "foo")]
-    public void When_Value_Equals_Other_ThrowIfEqual_Throws_ArgumentOutOfRangeException<T>(
+    [Arguments(1, 1)]
+    [Arguments("foo", "foo")]
+    public async ValueTask When_Value_Equals_Other_ThrowIfEqual_Throws_ArgumentOutOfRangeException<T>(
         T value,
         T other
     )
         where T : IEquatable<T> =>
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfEqual(value, other)
-        )
-            .ParamName.ShouldBe(nameof(value));
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfEqual(value, other))
+            .ThrowsExactly<ArgumentOutOfRangeException>()
+            .WithParameterName(nameof(value));
 
-    [TestMethod(
-        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfEqual() does not throw any {nameof(Exception)}"
+    [Test]
+    [DisplayName(
+        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfEqual($value, $other) does not throw Exception"
     )]
-    [DataRow(1, 0)]
-    [DataRow("foo", "bar")]
-    public void When_Value_Not_Equals_Other_ThrowIfEqual_Does_Not_Throw_Exception<T>(
+    [Arguments(1, 0)]
+    [Arguments("foo", "bar")]
+    public async ValueTask When_Value_Not_Equals_Other_ThrowIfEqual_Does_Not_Throw_Exception<T>(
         T value,
         T other
     )
         where T : IEquatable<T> =>
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfEqual(value, other));
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfEqual(value, other))
+            .ThrowsNothing();
 
-    [TestMethod(
-        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfNotEqual() throws {nameof(ArgumentOutOfRangeException)}"
+    [Test]
+    [DisplayName(
+        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfNotEqual($value, $other) throws {nameof(ArgumentOutOfRangeException)}"
     )]
-    [DataRow(1, 0)]
-    [DataRow("foo", "bar")]
-    public void When_Value_Not_Equals_Other_ThrowIfNotEqual_Throws_ArgumentOutOfRangeException<T>(
+    [Arguments(1, 0)]
+    [Arguments("foo", "bar")]
+    public async ValueTask When_Value_Not_Equals_Other_ThrowIfNotEqual_Throws_ArgumentOutOfRangeException<T>(
         T value,
         T other
     )
         where T : IEquatable<T> =>
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfNotEqual(value, other)
-        )
-            .ParamName.ShouldBe(nameof(value));
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfNotEqual(value, other))
+            .ThrowsExactly<ArgumentOutOfRangeException>()
+            .WithParameterName(nameof(value));
 
-    [TestMethod(
-        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfNotEqual() does not throw any {nameof(Exception)}"
+    [Test]
+    [DisplayName(
+        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfNotEqual($value, $other) does not throw any Exception"
     )]
-    [DataRow(1, 1)]
-    [DataRow("foo", "foo")]
-    public void When_Value_Equals_Other_ThrowIfNotEqual_Does_Not_Throw_Exception<T>(
+    [Arguments(1, 1)]
+    [Arguments("foo", "foo")]
+    public async ValueTask When_Value_Equals_Other_ThrowIfNotEqual_Does_Not_Throw_Exception<T>(
         T value,
         T other
     )
         where T : IEquatable<T> =>
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfNotEqual(value, other));
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfNotEqual(value, other))
+            .ThrowsNothing();
 
-    [TestMethod(
-        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfGreaterThan() throws {nameof(ArgumentOutOfRangeException)}"
+    [Test]
+    [DisplayName(
+        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfGreaterThan($value, $other) throws {nameof(ArgumentOutOfRangeException)}"
     )]
-    [DataRow(1, 0)]
-    [DataRow("foo", "bar")]
-    public void When_Value_Is_Greater_Than_Other_ThrowIfGreaterThan_Throws_ArgumentOutOfRangeException<T>(
+    [Arguments(1, 0)]
+    [Arguments("foo", "bar")]
+    public async ValueTask When_Value_Is_Greater_Than_Other_ThrowIfGreaterThan_Throws_ArgumentOutOfRangeException<T>(
         T value,
         T other
     )
         where T : IComparable<T> =>
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfGreaterThan(value, other)
-        )
-            .ParamName.ShouldBe(nameof(value));
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfGreaterThan(value, other))
+            .ThrowsExactly<ArgumentOutOfRangeException>()
+            .WithParameterName(nameof(value));
 
-    [TestMethod(
-        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfGreaterThan() does not throw any {nameof(Exception)}"
+    [Test]
+    [DisplayName(
+        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfGreaterThan($value, $other) does not throw any Exception"
     )]
-    [DataRow(0, 1)]
-    [DataRow(1, 1)]
-    [DataRow("bar", "foo")]
-    [DataRow("foo", "foo")]
-    public void When_Value_Is_Not_Greater_Than_Other_ThrowIfGreaterThan_Does_Not_Throw_Exception<T>(
+    [Arguments(0, 1)]
+    [Arguments(1, 1)]
+    [Arguments("bar", "foo")]
+    [Arguments("foo", "foo")]
+    public async ValueTask When_Value_Is_Not_Greater_Than_Other_ThrowIfGreaterThan_Does_Not_Throw_Exception<T>(
         T value,
         T other
     )
         where T : IComparable<T> =>
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfGreaterThan(value, other));
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfGreaterThan(value, other))
+            .ThrowsNothing();
 
-    [TestMethod(
-        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfGreaterThanOrEqual() throws {nameof(ArgumentOutOfRangeException)}"
+    [Test]
+    [DisplayName(
+        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfGreaterThanOrEqual($value, $other) throws {nameof(ArgumentOutOfRangeException)}"
     )]
-    [DataRow(1, 0)]
-    [DataRow(1, 1)]
-    [DataRow("foo", "bar")]
-    [DataRow("foo", "foo")]
-    public void When_Value_Is_Greater_Than_Or_Equal_Other_ThrowIfGreaterThanOrEqual_Throws_ArgumentOutOfRangeException<T>(
+    [Arguments(1, 0)]
+    [Arguments(1, 1)]
+    [Arguments("foo", "bar")]
+    [Arguments("foo", "foo")]
+    public async ValueTask When_Value_Is_Greater_Than_Or_Equal_Other_ThrowIfGreaterThanOrEqual_Throws_ArgumentOutOfRangeException<T>(
         T value,
         T other
     )
         where T : IComparable<T> =>
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(value, other)
-        )
-            .ParamName.ShouldBe(nameof(value));
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(value, other))
+            .ThrowsExactly<ArgumentOutOfRangeException>()
+            .WithParameterName(nameof(value));
 
-    [TestMethod(
-        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfGreaterThanOrEqual() does not throw any {nameof(Exception)}"
+    [Test]
+    [DisplayName(
+        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfGreaterThanOrEqual($value, $other) does not throw any Exception"
     )]
-    [DataRow(0, 1)]
-    [DataRow("bar", "foo")]
-    public void When_Value_Is_Not_Greater_Than_Or_Equal_Other_ThrowIfGreaterThanOrEqual_Does_Not_Throw_Exception<T>(
+    [Arguments(0, 1)]
+    [Arguments("bar", "foo")]
+    public async ValueTask When_Value_Is_Not_Greater_Than_Or_Equal_Other_ThrowIfGreaterThanOrEqual_Does_Not_Throw_Exception<T>(
         T value,
         T other
     )
         where T : IComparable<T> =>
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(value, other));
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(value, other))
+            .ThrowsNothing();
 
-    [TestMethod(
-        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfLessThan() throws {nameof(ArgumentOutOfRangeException)}"
+    [Test]
+    [DisplayName(
+        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfLessThan($value, $other) throws {nameof(ArgumentOutOfRangeException)}"
     )]
-    [DataRow(0, 1)]
-    [DataRow("bar", "foo")]
-    public void When_Value_Is_Less_Than_Other_ThrowIfLessThan_Throws_ArgumentOutOfRangeException<T>(
+    [Arguments(0, 1)]
+    [Arguments("bar", "foo")]
+    public async ValueTask When_Value_Is_Less_Than_Other_ThrowIfLessThan_Throws_ArgumentOutOfRangeException<T>(
         T value,
         T other
     )
         where T : IComparable<T> =>
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfLessThan(value, other)
-        )
-            .ParamName.ShouldBe(nameof(value));
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfLessThan(value, other))
+            .ThrowsExactly<ArgumentOutOfRangeException>()
+            .WithParameterName(nameof(value));
 
-    [TestMethod(
-        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfLessThan() does not throw any {nameof(Exception)}"
+    [Test]
+    [DisplayName(
+        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfLessThan($value, $other) does not throw any Exception"
     )]
-    [DataRow(1, 0)]
-    [DataRow(1, 1)]
-    [DataRow("foo", "bar")]
-    [DataRow("bar", "bar")]
-    public void When_Value_Is_Not_Less_Than_Other_ThrowIfLessThan_Does_Not_Throw_Exception<T>(
+    [Arguments(1, 0)]
+    [Arguments(1, 1)]
+    [Arguments("foo", "bar")]
+    [Arguments("bar", "bar")]
+    public async ValueTask When_Value_Is_Not_Less_Than_Other_ThrowIfLessThan_Does_Not_Throw_Exception<T>(
         T value,
         T other
     )
         where T : IComparable<T> =>
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfLessThan(value, other));
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfLessThan(value, other))
+            .ThrowsNothing();
 
-    [TestMethod(
-        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfLessThanOrEqual() throws {nameof(ArgumentOutOfRangeException)}"
+    [Test]
+    [DisplayName(
+        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfLessThanOrEqual($value, $other) throws {nameof(ArgumentOutOfRangeException)}"
     )]
-    [DataRow(0, 1)]
-    [DataRow(1, 1)]
-    [DataRow("bar", "foo")]
-    [DataRow("bar", "bar")]
-    public void When_Value_Is_Less_Than_Or_Equal_Other_ThrowIfLessThanOrEqual_Throws_ArgumentOutOfRangeException<T>(
+    [Arguments(0, 1)]
+    [Arguments(1, 1)]
+    [Arguments("bar", "foo")]
+    [Arguments("bar", "bar")]
+    public async ValueTask When_Value_Is_Less_Than_Or_Equal_Other_ThrowIfLessThanOrEqual_Throws_ArgumentOutOfRangeException<T>(
         T value,
         T other
     )
         where T : IComparable<T> =>
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(value, other)
-        )
-            .ParamName.ShouldBe(nameof(value));
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(value, other))
+            .ThrowsExactly<ArgumentOutOfRangeException>()
+            .WithParameterName(nameof(value));
 
-    [TestMethod(
-        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfLessThanOrEqual() does not throw any {nameof(Exception)}"
+    [Test]
+    [DisplayName(
+        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfLessThanOrEqual($value, $other) does not throw any Exception"
     )]
-    [DataRow(1, 0)]
-    [DataRow("foo", "bar")]
-    public void When_Value_Is_Not_Less_Than_Or_Equal_Other_ThrowIfLessThanOrEqual_Does_Not_Throw_Exception<T>(
+    [Arguments(1, 0)]
+    [Arguments("foo", "bar")]
+    public async ValueTask When_Value_Is_Not_Less_Than_Or_Equal_Other_ThrowIfLessThanOrEqual_Does_Not_Throw_Exception<T>(
         T value,
         T other
     )
         where T : IComparable<T> =>
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(value, other));
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(value, other))
+            .ThrowsNothing();
 
-    [TestMethod(
+    [Test]
+    [DisplayName(
         $"{nameof(ArgumentOutOfRangeException)}.ThrowIfZero(0) throws {nameof(ArgumentOutOfRangeException)}"
     )]
-    public void When_Value_Is_Zero_ThrowIfZero_Throws_ArgumentOutOfRangeException()
+    public async ValueTask When_Value_Is_Zero_ThrowIfZero_Throws_ArgumentOutOfRangeException()
     {
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfZero((byte)0)
-        );
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfZero((sbyte)0)
-        );
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfZero((short)0)
-        );
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfZero((ushort)0)
-        );
-        ShouldThrow<ArgumentOutOfRangeException>(() => ArgumentOutOfRangeException.ThrowIfZero(0));
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfZero((uint)0)
-        );
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfZero((long)0)
-        );
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfZero((ulong)0)
-        );
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfZero((float)0)
-        );
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfZero((double)0)
-        );
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfZero((decimal)0)
-        );
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfZero((nint)0)
-        );
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfZero((nuint)0)
-        );
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfZero((char)0)
-        );
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfZero((byte)0))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfZero((sbyte)0))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfZero((short)0))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfZero((ushort)0))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfZero(0))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfZero((uint)0))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfZero((long)0))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfZero((ulong)0))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfZero((float)0))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfZero((double)0))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfZero((decimal)0))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfZero((nint)0))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfZero((nuint)0))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfZero((char)0))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
     }
 
-    [TestMethod(
-        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfZero(1) does not throw any {nameof(Exception)}"
+    [Test]
+    [DisplayName(
+        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfZero(1) does not throw any Exception"
     )]
-    public void When_Value_Is_Not_Zero_ThrowIfZero_Does_Not_Throw()
+    public async ValueTask When_Value_Is_Not_Zero_ThrowIfZero_Does_Not_Throw()
     {
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfZero((byte)1));
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfZero((sbyte)1));
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfZero((short)1));
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfZero((ushort)1));
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfZero(1));
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfZero((uint)1));
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfZero((long)1));
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfZero((ulong)1));
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfZero((float)1));
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfZero((double)1));
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfZero((decimal)1));
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfZero((nint)1));
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfZero((nuint)1));
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfZero((char)1));
+        await Assert.That(() => ArgumentOutOfRangeException.ThrowIfZero((byte)1)).ThrowsNothing();
+        await Assert.That(() => ArgumentOutOfRangeException.ThrowIfZero((sbyte)1)).ThrowsNothing();
+        await Assert.That(() => ArgumentOutOfRangeException.ThrowIfZero((short)1)).ThrowsNothing();
+        await Assert.That(() => ArgumentOutOfRangeException.ThrowIfZero((ushort)1)).ThrowsNothing();
+        await Assert.That(() => ArgumentOutOfRangeException.ThrowIfZero(1)).ThrowsNothing();
+        await Assert.That(() => ArgumentOutOfRangeException.ThrowIfZero((uint)1)).ThrowsNothing();
+        await Assert.That(() => ArgumentOutOfRangeException.ThrowIfZero((long)1)).ThrowsNothing();
+        await Assert.That(() => ArgumentOutOfRangeException.ThrowIfZero((ulong)1)).ThrowsNothing();
+        await Assert.That(() => ArgumentOutOfRangeException.ThrowIfZero((float)1)).ThrowsNothing();
+        await Assert.That(() => ArgumentOutOfRangeException.ThrowIfZero((double)1)).ThrowsNothing();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfZero((decimal)1))
+            .ThrowsNothing();
+        await Assert.That(() => ArgumentOutOfRangeException.ThrowIfZero((nint)1)).ThrowsNothing();
+        await Assert.That(() => ArgumentOutOfRangeException.ThrowIfZero((nuint)1)).ThrowsNothing();
+        await Assert.That(() => ArgumentOutOfRangeException.ThrowIfZero((char)1)).ThrowsNothing();
     }
 
-    [TestMethod(
+    [Test]
+    [DisplayName(
         $"{nameof(ArgumentOutOfRangeException)}.ThrowIfNegative(-1) throws {nameof(ArgumentOutOfRangeException)}"
     )]
-    public void When_Value_Is_Negative_ThrowIfNegative_Throws_ArgumentOutOfRangeException()
+    public async ValueTask When_Value_Is_Negative_ThrowIfNegative_Throws_ArgumentOutOfRangeException()
     {
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfNegative((sbyte)-1)
-        );
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfNegative((short)-1)
-        );
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfNegative(-1)
-        );
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfNegative((long)-1)
-        );
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfNegative((float)-1)
-        );
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfNegative((double)-1)
-        );
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfNegative((decimal)-1)
-        );
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfNegative((nint)(-1))
-        );
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfNegative((sbyte)-1))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfNegative((short)-1))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfNegative(-1))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfNegative((long)-1))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfNegative((float)-1))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfNegative((double)-1))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfNegative((decimal)-1))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfNegative((nint)(-1)))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
     }
 
-    [TestMethod(
-        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfNegative(0 or 1) does not throw any {nameof(Exception)}"
+    [Test]
+    [DisplayName(
+        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfNegative($value) does not throw any Exception"
     )]
-    [DataRow(
-        0,
-        DisplayName = $"{nameof(ArgumentOutOfRangeException)}.ThrowIfNegative(0) does not throw any {nameof(Exception)}"
-    )]
-    [DataRow(
-        1,
-        DisplayName = $"{nameof(ArgumentOutOfRangeException)}.ThrowIfNegative(1) does not throw any {nameof(Exception)}"
-    )]
-    public void When_Value_Is_Not_Negative_ThrowIfNegative_Does_Not_Throw(int value)
+    [Arguments(0)]
+    [Arguments(1)]
+    public async ValueTask When_Value_Is_Not_Negative_ThrowIfNegative_Does_Not_Throw(int value)
     {
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfNegative((sbyte)value));
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfNegative((short)value));
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfNegative(value));
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfNegative((long)value));
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfNegative((float)value));
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfNegative((double)value));
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfNegative((decimal)value));
-        ShouldNotThrow(() => ArgumentOutOfRangeException.ThrowIfNegative((nint)value));
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfNegative((sbyte)value))
+            .ThrowsNothing();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfNegative((short)value))
+            .ThrowsNothing();
+        await Assert.That(() => ArgumentOutOfRangeException.ThrowIfNegative(value)).ThrowsNothing();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfNegative((long)value))
+            .ThrowsNothing();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfNegative((float)value))
+            .ThrowsNothing();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfNegative((double)value))
+            .ThrowsNothing();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfNegative((decimal)value))
+            .ThrowsNothing();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfNegative((nint)value))
+            .ThrowsNothing();
     }
 
-    [TestMethod(
-        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfNegativeOrZero(0 or -1) throws {nameof(ArgumentOutOfRangeException)}"
+    [Test]
+    [DisplayName(
+        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfNegativeOrZero($value) throws {nameof(ArgumentOutOfRangeException)}"
     )]
-    [DataRow(
-        0,
-        DisplayName = $"{nameof(ArgumentOutOfRangeException)}.ThrowIfNegativeOrZero(0) throws {nameof(ArgumentOutOfRangeException)}"
-    )]
-    [DataRow(
-        -1,
-        DisplayName = $"{nameof(ArgumentOutOfRangeException)}.ThrowIfNegativeOrZero(-1) throws {nameof(ArgumentOutOfRangeException)}"
-    )]
-    public void When_Value_Is_Negative_Or_Zero_ThrowIfNegativeOrZero_Throws_ArgumentOutOfRangeException(
+    [Arguments(0)]
+    [Arguments(-1)]
+    public async ValueTask When_Value_Is_Negative_Or_Zero_ThrowIfNegativeOrZero_Throws_ArgumentOutOfRangeException(
         int value
     )
     {
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero((sbyte)value)
-        );
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero((short)value)
-        );
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value)
-        );
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero((long)value)
-        );
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero((float)value)
-        );
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero((double)value)
-        );
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero((decimal)value)
-        );
-        ShouldThrow<ArgumentOutOfRangeException>(() =>
-            ArgumentOutOfRangeException.ThrowIfNegativeOrZero((nint)value)
-        );
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfNegativeOrZero((sbyte)value))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfNegativeOrZero((short)value))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfNegativeOrZero(value))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfNegativeOrZero((long)value))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfNegativeOrZero((float)value))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfNegativeOrZero((double)value))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfNegativeOrZero((decimal)value))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfNegativeOrZero((nint)value))
+            .ThrowsExactly<ArgumentOutOfRangeException>();
     }
 
-    [TestMethod(
-        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfNegativeOrZero(1) does not throw any {nameof(Exception)}"
+    [Test]
+    [DisplayName(
+        $"{nameof(ArgumentOutOfRangeException)}.ThrowIfNegativeOrZero(1) does not throw any Exception"
     )]
-    public void When_Value_Is_Not_Negative_Or_Zero_ThrowIfNegativeOrZero_Does_Not_Throw()
+    public async ValueTask When_Value_Is_Not_Negative_Or_Zero_ThrowIfNegativeOrZero_Does_Not_Throw()
     {
-        ShouldNotThrow(static () => ArgumentOutOfRangeException.ThrowIfNegativeOrZero((sbyte)1));
-        ShouldNotThrow(static () => ArgumentOutOfRangeException.ThrowIfNegativeOrZero((short)1));
-        ShouldNotThrow(static () => ArgumentOutOfRangeException.ThrowIfNegativeOrZero(1));
-        ShouldNotThrow(static () => ArgumentOutOfRangeException.ThrowIfNegativeOrZero((long)1));
-        ShouldNotThrow(static () => ArgumentOutOfRangeException.ThrowIfNegativeOrZero((float)1));
-        ShouldNotThrow(static () => ArgumentOutOfRangeException.ThrowIfNegativeOrZero((double)1));
-        ShouldNotThrow(static () => ArgumentOutOfRangeException.ThrowIfNegativeOrZero((decimal)1));
-        ShouldNotThrow(static () => ArgumentOutOfRangeException.ThrowIfNegativeOrZero((nint)1));
+        await Assert
+            .That(static () => ArgumentOutOfRangeException.ThrowIfNegativeOrZero((sbyte)1))
+            .ThrowsNothing();
+        await Assert
+            .That(static () => ArgumentOutOfRangeException.ThrowIfNegativeOrZero((short)1))
+            .ThrowsNothing();
+        await Assert
+            .That(static () => ArgumentOutOfRangeException.ThrowIfNegativeOrZero(1))
+            .ThrowsNothing();
+        await Assert
+            .That(static () => ArgumentOutOfRangeException.ThrowIfNegativeOrZero((long)1))
+            .ThrowsNothing();
+        await Assert
+            .That(static () => ArgumentOutOfRangeException.ThrowIfNegativeOrZero((float)1))
+            .ThrowsNothing();
+        await Assert
+            .That(static () => ArgumentOutOfRangeException.ThrowIfNegativeOrZero((double)1))
+            .ThrowsNothing();
+        await Assert
+            .That(static () => ArgumentOutOfRangeException.ThrowIfNegativeOrZero((decimal)1))
+            .ThrowsNothing();
+        await Assert
+            .That(static () => ArgumentOutOfRangeException.ThrowIfNegativeOrZero((nint)1))
+            .ThrowsNothing();
     }
     #endregion ArgumentOutOfRangeException
 
     #region ObjectDisposedException
-    [TestMethod(
+    [Test]
+    [DisplayName(
         $"{nameof(ObjectDisposedException)}.ThrowIf(true, <object or Type>) throws {nameof(ObjectDisposedException)}"
     )]
-    public void When_Condition_Is_True_ThrowIf_Throws_ObjectDisposedException()
+    public async ValueTask When_Condition_Is_True_ThrowIf_Throws_ObjectDisposedException()
     {
-        ShouldThrow<ObjectDisposedException>(() =>
-            ObjectDisposedException.ThrowIf(true, new object())
-        );
-        ShouldThrow<ObjectDisposedException>(() =>
-            ObjectDisposedException.ThrowIf(true, typeof(object))
-        );
+        await Assert
+            .That(() => ObjectDisposedException.ThrowIf(true, new object()))
+            .ThrowsExactly<ObjectDisposedException>();
+        await Assert
+            .That(() => ObjectDisposedException.ThrowIf(true, typeof(object)))
+            .ThrowsExactly<ObjectDisposedException>();
     }
 
-    [TestMethod(
+    [Test]
+    [DisplayName(
         $"{nameof(ObjectDisposedException)}.ThrowIf(false, <object or Type>) does not throw any {nameof(Exception)}"
     )]
-    public void When_Condition_Is_False_ThrowIf_Does_Not_Throw_Exception()
+    public async ValueTask When_Condition_Is_False_ThrowIf_Does_Not_Throw_Exception()
     {
-        ShouldNotThrow(() => ObjectDisposedException.ThrowIf(false, new object()));
-        ShouldNotThrow(() => ObjectDisposedException.ThrowIf(false, typeof(object)));
+        await Assert
+            .That(() => ObjectDisposedException.ThrowIf(false, new object()))
+            .ThrowsNothing();
+        await Assert
+            .That(() => ObjectDisposedException.ThrowIf(false, typeof(object)))
+            .ThrowsNothing();
     }
     #endregion ObjectDisposedException
 
     #region Extension Methods Verification
-    [TestMethod($"{nameof(ExceptionPolyfills)} should contain expected extension methods")]
-    public void ExceptionPolyfills_Should_Contain_Expected_Extension_Methods()
+    [Test]
+    [DisplayName(
+        $"{nameof(ExceptionPolyfills)} contains $exceptionType.$methodName($argumentsTypes)"
+    )]
+    [Arguments(typeof(ArgumentNullException), "ThrowIfNull", typeof(object))]
+    [Arguments(typeof(ArgumentNullException), "ThrowIfNull", typeof(void*))]
+    [Arguments(typeof(ArgumentException), "ThrowIfNullOrEmpty", typeof(string))]
+    [Arguments(typeof(ArgumentException), "ThrowIfNullOrWhiteSpace", typeof(string))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfEqual", null, null)]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfNotEqual", null, null)]
+    [Arguments(
+        typeof(ArgumentOutOfRangeException),
+        "ThrowIfGreaterThan",
+        typeof(IComparable<>),
+        typeof(IComparable<>)
+    )]
+    [Arguments(
+        typeof(ArgumentOutOfRangeException),
+        "ThrowIfGreaterThanOrEqual",
+        typeof(IComparable<>),
+        typeof(IComparable<>)
+    )]
+    [Arguments(
+        typeof(ArgumentOutOfRangeException),
+        "ThrowIfLessThan",
+        typeof(IComparable<>),
+        typeof(IComparable<>)
+    )]
+    [Arguments(
+        typeof(ArgumentOutOfRangeException),
+        "ThrowIfLessThanOrEqual",
+        typeof(IComparable<>),
+        typeof(IComparable<>)
+    )]
+    [Arguments(typeof(ObjectDisposedException), "ThrowIf", typeof(bool), typeof(object))]
+    [Arguments(typeof(ObjectDisposedException), "ThrowIf", typeof(bool), typeof(Type))]
+#if NET7_0_OR_GREATER
+    [Arguments(
+        typeof(ArgumentOutOfRangeException),
+        "ThrowIfZero",
+        typeof(System.Numerics.INumberBase<>)
+    )]
+    [Arguments(
+        typeof(ArgumentOutOfRangeException),
+        "ThrowIfNegative",
+        typeof(System.Numerics.INumberBase<>)
+    )]
+    [Arguments(
+        typeof(ArgumentOutOfRangeException),
+        "ThrowIfNegativeOrZero",
+        typeof(System.Numerics.INumberBase<>)
+    )]
+#else
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfZero", typeof(byte))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfZero", typeof(sbyte))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfNegative", typeof(sbyte))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfNegativeOrZero", typeof(sbyte))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfZero", typeof(short))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfNegative", typeof(short))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfNegativeOrZero", typeof(short))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfZero", typeof(ushort))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfZero", typeof(int))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfNegative", typeof(int))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfNegativeOrZero", typeof(int))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfZero", typeof(uint))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfZero", typeof(long))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfNegative", typeof(long))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfNegativeOrZero", typeof(long))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfZero", typeof(ulong))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfZero", typeof(float))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfNegative", typeof(float))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfNegativeOrZero", typeof(float))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfZero", typeof(double))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfNegative", typeof(double))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfNegativeOrZero", typeof(double))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfZero", typeof(decimal))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfNegative", typeof(decimal))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfNegativeOrZero", typeof(decimal))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfZero", typeof(nint))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfNegative", typeof(nint))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfNegativeOrZero", typeof(nint))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfZero", typeof(nuint))]
+    [Arguments(typeof(ArgumentOutOfRangeException), "ThrowIfZero", typeof(char))]
+#endif
+    public async ValueTask ExceptionPolyfills_Should_Contain_Expected_Extension_Method(
+        Type exceptionType,
+        string methodName,
+        params Type?[] argumentsTypes
+    )
     {
         var polyfillMethods = typeof(ExceptionPolyfills).GetMethods(
             BindingFlags.Public | BindingFlags.Static
         );
+        var frameworkMethods = exceptionType.GetMethods(BindingFlags.Public | BindingFlags.Static);
+        if (!frameworkMethods.Any(SignitureEquals))
+            await Assert.That(polyfillMethods).Contains(SignitureEquals);
 
-        VerifyPolyfillMethod(
-            typeof(ArgumentNullException),
-            "ThrowIfNull",
-            polyfillMethods,
-            typeof(object)
-        );
-        VerifyPolyfillMethod(
-            typeof(ArgumentNullException),
-            "ThrowIfNull",
-            polyfillMethods,
-            typeof(void*)
-        );
-        VerifyPolyfillMethod(
-            typeof(ArgumentException),
-            "ThrowIfNullOrEmpty",
-            polyfillMethods,
-            typeof(string)
-        );
-        VerifyPolyfillMethod(
-            typeof(ArgumentException),
-            "ThrowIfNullOrWhiteSpace",
-            polyfillMethods,
-            typeof(string)
-        );
-        VerifyPolyfillMethod(
-            typeof(ArgumentOutOfRangeException),
-            "ThrowIfEqual",
-            polyfillMethods,
-            null,
-            null
-        );
-        VerifyPolyfillMethod(
-            typeof(ArgumentOutOfRangeException),
-            "ThrowIfNotEqual",
-            polyfillMethods,
-            null,
-            null
-        );
-        VerifyPolyfillMethod(
-            typeof(ArgumentOutOfRangeException),
-            "ThrowIfGreaterThan",
-            polyfillMethods,
-            typeof(IComparable<>),
-            typeof(IComparable<>)
-        );
-        VerifyPolyfillMethod(
-            typeof(ArgumentOutOfRangeException),
-            "ThrowIfGreaterThanOrEqual",
-            polyfillMethods,
-            typeof(IComparable<>),
-            typeof(IComparable<>)
-        );
-        VerifyPolyfillMethod(
-            typeof(ArgumentOutOfRangeException),
-            "ThrowIfLessThan",
-            polyfillMethods,
-            typeof(IComparable<>),
-            typeof(IComparable<>)
-        );
-        VerifyPolyfillMethod(
-            typeof(ArgumentOutOfRangeException),
-            "ThrowIfLessThanOrEqual",
-            polyfillMethods,
-            typeof(IComparable<>),
-            typeof(IComparable<>)
-        );
-
-        // Numeric validation methods - verify they exist as either generic or specific overloads
-        VerifyNumericValidationMethods(polyfillMethods);
-
-        VerifyPolyfillMethod(
-            typeof(ObjectDisposedException),
-            "ThrowIf",
-            polyfillMethods,
-            typeof(bool),
-            typeof(object)
-        );
-        VerifyPolyfillMethod(
-            typeof(ObjectDisposedException),
-            "ThrowIf",
-            polyfillMethods,
-            typeof(bool),
-            typeof(Type)
-        );
-    }
-
-    /// <summary>
-    /// Verifies numeric validation methods exist as either generic or specific overloads
-    /// </summary>
-    /// <param name="polyfillMethods">All available polyfill methods</param>
-    private static void VerifyNumericValidationMethods(MethodInfo[] polyfillMethods)
-    {
-        if (Type.GetType("System.Numerics.INumberBase`1") is Type numberBaseType)
+        bool SignitureEquals(MethodInfo methodInfo)
         {
-            VerifyPolyfillMethod(
-                typeof(ArgumentOutOfRangeException),
-                "ThrowIfZero",
-                polyfillMethods,
-                numberBaseType
-            );
-            VerifyPolyfillMethod(
-                typeof(ArgumentOutOfRangeException),
-                "ThrowIfNegative",
-                polyfillMethods,
-                numberBaseType
-            );
-            VerifyPolyfillMethod(
-                typeof(ArgumentOutOfRangeException),
-                "ThrowIfNegativeOrZero",
-                polyfillMethods,
-                numberBaseType
-            );
-        }
-        else
-        {
-            VerifySpecificNumericTypeMethods(polyfillMethods);
-        }
-    }
-
-    /// <summary>
-    /// Verifies specific numeric type methods for frameworks without INumberBase&lt;T&gt;
-    /// </summary>
-    /// <param name="polyfillMethods">All available polyfill methods</param>
-    private static void VerifySpecificNumericTypeMethods(MethodInfo[] polyfillMethods)
-    {
-        Type[] unsignedNumericTypes =
-        [
-            typeof(byte),
-            typeof(ushort),
-            typeof(uint),
-            typeof(ulong),
-            typeof(nuint),
-            typeof(char),
-        ];
-        Type[] signedNumericTypes =
-        [
-            typeof(sbyte),
-            typeof(short),
-            typeof(int),
-            typeof(long),
-            typeof(float),
-            typeof(double),
-            typeof(decimal),
-            typeof(nint),
-        ];
-
-        foreach (var numericType in unsignedNumericTypes)
-        {
-            VerifyPolyfillMethod(
-                typeof(ArgumentOutOfRangeException),
-                "ThrowIfZero",
-                polyfillMethods,
-                numericType
-            );
-        }
-
-        foreach (var type in signedNumericTypes)
-        {
-            VerifyPolyfillMethod(
-                typeof(ArgumentOutOfRangeException),
-                "ThrowIfZero",
-                polyfillMethods,
-                type
-            );
-            VerifyPolyfillMethod(
-                typeof(ArgumentOutOfRangeException),
-                "ThrowIfNegative",
-                polyfillMethods,
-                type
-            );
-            VerifyPolyfillMethod(
-                typeof(ArgumentOutOfRangeException),
-                "ThrowIfNegativeOrZero",
-                polyfillMethods,
-                type
-            );
-        }
-    }
-
-    /// <summary>
-    /// Verifies that polyfill methods exist when framework lacks built-in implementation
-    /// </summary>
-    /// <param name="frameworkType">The framework exception type to check</param>
-    /// <param name="methodName">The method name to verify</param>
-    /// <param name="polyfillMethods">All available polyfill methods</param>
-    /// <param name="expectedOverloadTypes">Expected parameter types for specific overloads to verify. Use null to represent generic T parameter.</param>
-    private static void VerifyPolyfillMethod(
-        Type frameworkType,
-        string methodName,
-        MethodInfo[] polyfillMethods,
-        params Type?[] expectedOverloadTypes
-    )
-    {
-        var frameworkMethods = frameworkType.GetMethods(BindingFlags.Public | BindingFlags.Static);
-        if (
-            !frameworkMethods.Any(m =>
-                m.Name == methodName && DoesMethodMatchExpectedSignature(m, expectedOverloadTypes)
-            )
-        )
-        {
-            AssertPolyfillMethodExists(
-                frameworkType,
-                methodName,
-                polyfillMethods,
-                expectedOverloadTypes
-            );
-        }
-    }
-
-    /// <summary>
-    /// Asserts that a polyfill method exists with the expected signature
-    /// </summary>
-    /// <param name="frameworkType">The framework exception type</param>
-    /// <param name="methodName">The method name</param>
-    /// <param name="polyfillMethods">Available polyfill methods</param>
-    /// <param name="expectedOverloadTypes">Expected parameter types. Use null to represent generic T parameter.</param>
-    private static void AssertPolyfillMethodExists(
-        Type frameworkType,
-        string methodName,
-        MethodInfo[] polyfillMethods,
-        Type?[] expectedOverloadTypes
-    )
-    {
-        string typeNames = string.Join(", ", expectedOverloadTypes.Select(t => t?.Name ?? "T"));
-        polyfillMethods.ShouldContain(
-            m => m.Name == methodName && DoesMethodMatchExpectedSignature(m, expectedOverloadTypes),
-            $"{frameworkType.Name}.{methodName}({typeNames}) should have polyfill when framework lacks built-in version"
-        );
-    }
-
-    /// <summary>
-    /// Checks if a method matches the expected signature, with optional string? parameter at the end
-    /// </summary>
-    /// <param name="method">The method to check</param>
-    /// <param name="expectedOverloadTypes">Expected parameter types (excluding optional string? parameter). Use null to represent generic T parameter.</param>
-    /// <returns>True if the method matches the expected signature</returns>
-    private static bool DoesMethodMatchExpectedSignature(
-        MethodInfo method,
-        Type?[] expectedOverloadTypes
-    )
-    {
-        var parameters = method.GetParameters();
-        int expectedCount = expectedOverloadTypes.Length;
-
-        // Method can have expected parameters with or without optional string parameter
-        if (parameters.Length != expectedCount && parameters.Length != expectedCount + 1)
-            return false;
-
-        // Check that the first N parameters match exactly
-        for (int i = 0; i < expectedCount; i++)
-        {
-            if (
-                !DoesParameterTypeMatch(
-                    parameters[i].ParameterType,
-                    expectedOverloadTypes[i],
-                    method
-                )
-            )
-            {
+            if (methodInfo.Name != methodName)
                 return false;
-            }
-        }
 
-        // If there's an additional parameter, verify it's an optional string
-        return parameters.Length == expectedCount
-            || (
-                parameters[expectedCount].ParameterType == typeof(string)
-                && parameters[expectedCount].HasDefaultValue
-            );
+            var parameters = methodInfo.GetParameters();
+            int expectedCount = argumentsTypes.Length;
+
+            // Method can have expected parameters with or without optional string parameter
+            if (parameters.Length != expectedCount && parameters.Length != expectedCount + 1)
+                return false;
+
+            // Check that the first N parameters match exactly
+            for (int i = 0; i < expectedCount; i++)
+            {
+                var paramType = parameters[i].ParameterType;
+                if (!DoesParameterTypeMatch(paramType, argumentsTypes[i], methodInfo))
+                    return false;
+            }
+
+            // If there's an additional parameter, verify it's an optional string
+            return parameters.Length == expectedCount
+                || (
+                    parameters[^1].ParameterType == typeof(string) && parameters[^1].HasDefaultValue
+                );
+        }
     }
 
     /// <summary>
