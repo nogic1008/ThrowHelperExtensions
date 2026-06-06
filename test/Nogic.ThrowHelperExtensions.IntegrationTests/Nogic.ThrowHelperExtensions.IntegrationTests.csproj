@@ -1,4 +1,4 @@
-<Project Sdk="MSTest.Sdk/3.11.0">
+﻿<Project Sdk="MSTest.Sdk/3.11.0">
   <PropertyGroup>
     <TargetFrameworks>net48;net6.0;net7.0;net10.0</TargetFrameworks>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -6,14 +6,18 @@
       $(NoWarn);NETSDK1138
     </NoWarn>
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <TUnitImplicitUsings>false</TUnitImplicitUsings>
+    <TUnitAssertionsImplicitUsings>false</TUnitAssertionsImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Shouldly" />
+    <PackageReference Include="TUnit" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" PrivateAssets="all" />
+    <PackageReference Include="Polyfill" PrivateAssets="all" />
   </ItemGroup>
 
   <ItemGroup>
