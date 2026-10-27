@@ -4,12 +4,14 @@
   "customizations": {
     "vscode": {
       "extensions": [
+        "csharpier.csharpier-vscode",
         "EditorConfig.EditorConfig",
+        "github.vscode-github-actions",
         "ms-dotnettools.csdevkit"
       ]
     }
   },
-  "postCreateCommand": "dotnet restore",
+  "postCreateCommand": "dotnet tool restore",
   "features": {
     "ghcr.io/devcontainers/features/dotnet:2": {
       "version": "7.0",
