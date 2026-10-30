@@ -1,0 +1,14 @@
+{
+  "features": {
+    "ghcr.io/devcontainers/features/dotnet:2": {
+      "version": "2.5.0",
+      "resolved": "ghcr.io/devcontainers/features/dotnet@sha256:0fc16547ed4db6d7ff2a9f5981d2b93eb314e568affb9958029ad794f1f9a093",
+      "integrity": "sha256:0fc16547ed4db6d7ff2a9f5981d2b93eb314e568affb9958029ad794f1f9a093"
+    },
+    "ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
+      "version": "1.0.2",
+      "resolved": "ghcr.io/rocker-org/devcontainer-features/apt-packages@sha256:87a4d7750a596a5db034ba8508782f31aebdc2ffe955c66aaecb33d9de2ecdae",
+      "integrity": "sha256:87a4d7750a596a5db034ba8508782f31aebdc2ffe955c66aaecb33d9de2ecdae"
+    }
+  }
+}
