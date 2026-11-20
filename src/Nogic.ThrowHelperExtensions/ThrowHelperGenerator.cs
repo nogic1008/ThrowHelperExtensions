@@ -72,21 +72,18 @@ public class ThrowHelperGenerator : IIncrementalGenerator
                 return ((CSharpCompilation)compilation).LanguageVersion;
             }
         );
-        context.RegisterSourceOutput(
-            languageVersionProvider,
-            static (context, languageVersion) =>
+        context.RegisterSourceOutput(languageVersionProvider, static (context, languageVersion) =>
+        {
+            if (languageVersion < MinimumRequiredLanguageVersion)
             {
-                if (languageVersion < MinimumRequiredLanguageVersion)
-                {
-                    var diagnostic = Diagnostic.Create(
-                        CSharpVersionWarning,
-                        Location.None,
-                        languageVersion.ToDisplayString()
-                    );
-                    context.ReportDiagnostic(diagnostic);
-                }
+                var diagnostic = Diagnostic.Create(
+                    CSharpVersionWarning,
+                    Location.None,
+                    languageVersion.ToDisplayString()
+                );
+                context.ReportDiagnostic(diagnostic);
             }
-        );
+        });
 
         // Generate necessary attributes
         var buildOptions = context.AnalyzerConfigOptionsProvider.Select(
